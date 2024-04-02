@@ -22,8 +22,8 @@ function App() {
 
   return (
     <Router>
-      <Layout style={{ minHeight: '100vh', width: '100vh', margin: '0', padding: '0'}}>
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Layout id='main-content' style={{ minHeight: '100vh', width: '100%', margin: '0', padding: '0'}}>
+        <Sider id='side-nav-bar' trigger={null} collapsible collapsed={collapsed}>
           <div className='logo'/>
             <Menu
               theme='dark'
@@ -45,7 +45,7 @@ function App() {
             </Menu>
         </Sider>
         <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }}>
+          <Header id='top-nav-bar' style={{ padding: 0, background: colorBgContainer, display: 'flex' }}>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -54,10 +54,11 @@ function App() {
                 fontSize: '16px',
                 width: 64,
                 height: 64,
+                left: 0,
               }}
               />
             </Header>
-            <Content
+            <Content id='site-content'
             style={{
               padding: 24,
               minHeight: 280,
