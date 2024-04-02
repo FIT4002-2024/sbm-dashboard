@@ -10,17 +10,19 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'
 import { Layout, Menu, Button, theme } from 'antd'
 import './App.css'
 
+import OperationsPage from './pages/OperationsPage'
+
 const { Header, Sider, Content } = Layout
 
 function App() {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const {
     token: {colorBgContainer, borderRadiusLG}
   } = theme.useToken();
 
   return (
     <Router>
-      <Layout style={{ minHeight: '100vh'}}>
+      <Layout style={{ minHeight: '100vh', width: '100vh', margin: '0', padding: '0'}}>
         <Sider trigger={null} collapsible collapsed={collapsed}>
           <div className='logo'/>
             <Menu
@@ -63,7 +65,7 @@ function App() {
               borderRadius: borderRadiusLG,
             }}>
             <Routes>
-              <Route path='/' element={<div>Content for Operations</div>} />
+              <Route path='/' element={<OperationsPage/>} />
               <Route path='/dynamic-scheduling' element={<div>Content for Dynamic Scheduling</div>} />
               <Route path='/sales-forecast' element={<div>Content for Sales Forecast</div>} />
               <Route path='/accounts' element={<div>Content for Accounts</div>} />
