@@ -2,20 +2,42 @@ name: Publish Frontend to GitHub pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "feature/github_pages"]
   workflow_dispatch:
+
+permissions:
+  actions: write
+  deployments: write
+  packages: write
+  pages: write
+  id-token: write
 
 jobs:
   build-static:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
 
       - run: |
+          cd sbm-dashboard
+          npm install
           npm run lint 
           npm run build
+
+      - name: Upload Built Frontend as GitHub Artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          name: frontend 
+          path: sbm-dashboard/dist 
+      
+      - name: Deploy Frontend to GitHub Pages Site 
+        uses: actions/deploy-pages@v4.0.5
+        with:
+          artifact_name: frontend
