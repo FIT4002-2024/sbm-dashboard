@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2022 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
@@ -38,7 +32,26 @@ float read_onboard_temperature(const char);
 //
 int main() {
     stdio_init_all();
-    printf("Testing if serial communication is buffered.\n");
+    
+    while (true) {
+        sleep_ms(100);
+
+        char input_character = getchar();
+        if (input_character == EOF) {
+            printf("EOF detected in input.\n");
+            continue;
+        } else if (ferror(stdin)) {
+            printf("Reading stdin failed.\n");
+            continue;
+        }
+
+        if (input_character == 'g') {
+            printf("Have not received the input to go ahead.\n");
+            break;
+        } else {
+            printf("Input needs to have a g in it.\n");
+        }
+    }
 
     int country_e = cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA);
     if (country_e) {
@@ -63,6 +76,7 @@ int main() {
     {
         cyw43_arch_lwip_begin();
 
+        // TODO: free my mans.
         struct altcp_pcb* pcb = altcp_new(NULL);
         altcp_err(pcb, on_tcp_error);
         tcp_e = altcp_connect(pcb, &address, port, on_tcp_connection_success);
