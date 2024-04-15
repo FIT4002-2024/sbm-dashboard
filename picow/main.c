@@ -30,6 +30,15 @@ static err_t on_tcp_connected(void *arg, struct altcp_pcb *pcb, err_t e) {
     return ERR_OK;
 }
 
+//
+// Just a proof of concept for bare-metal micro-processor / sensor integration.
+// There's pico SDKs and examples- this is mainly cobbling them together.
+// The SDK codes themselves (i.e., https://github.com/raspberrypi/pico-sdk) are pretty good to get a
+// concrete understanding of what we're dealing with programming against bare-metal.
+//
+// TODO: have not found a good way to debug; board does not await for the serial connection to begin running.
+// As such, stdout before connection will get lost.
+//
 int main() {
     stdio_init_all();
     printf("Testing if serial communication is buffered.\n");
