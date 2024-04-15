@@ -13,11 +13,7 @@
                                  "\r\n"
 
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e);
-int has_connected = 0;
-int write_e = 0;
-int send_e = 0;
 static void on_tcp_error(void *arg, err_t e);
-int generic_e = 0;
 
 float read_onboard_temperature(const char);
 
@@ -26,9 +22,6 @@ float read_onboard_temperature(const char);
 // There's pico SDKs and examples- this is mainly cobbling them together.
 // The SDK codes themselves (i.e., https://github.com/raspberrypi/pico-sdk) are pretty good to get a
 // concrete understanding of what we're dealing with programming against bare-metal.
-//
-// TODO: have not found a good way to debug; board does not await for the serial connection to begin running.
-// As such, stdout before connection will get lost.
 //
 int main() {
     stdio_init_all();
@@ -69,17 +62,18 @@ int main() {
         printf("Failed to connect to the given WIFI network.\n");
         return 1;
     }
-    int tcp_e = 0;
-    // TODO: make this a build parameter.
-    ip_addr_t address; IP4_ADDR(&address, 192,168,1,7);
-    int port = 8000;
     {
         cyw43_arch_lwip_begin();
 
         // TODO: free my mans.
         struct altcp_pcb* pcb = altcp_new(NULL);
         altcp_err(pcb, on_tcp_error);
-        tcp_e = altcp_connect(pcb, &address, port, on_tcp_connection_success);
+        // TODO: make this a build parameter.
+        ip_addr_t address; IP4_ADDR(&address, 192, 168, 1, 7);
+        int tcp_e = altcp_connect(pcb, &address, 8000, on_tcp_connection_success);
+        if (tcp_e != 0) {
+            printf("TCP connection error code: %d\n", tcp_e);
+        }
         
         cyw43_arch_lwip_end();
     }
@@ -90,27 +84,20 @@ int main() {
         sleep_ms(250);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(250);
-        printf("WIFI country set error code: %d\n", country_e);
-        printf("WIFI connection error code: %d\n", connect_e);
-        printf("IP: %s, port: %d\n", ipaddr_ntoa(&address), port);
-        printf("TCP connection error code: %d\n", tcp_e);
-        printf("Has connected: %d\n", has_connected);
-        printf("Error writing data: %d\n", write_e);
-        printf("Error sending data: %d\n", send_e);
-        printf("Generic: %d\n", generic_e);
     }
 }
 
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e) {
-    has_connected = 1;
-    write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
-    send_e = altcp_output(pcb);
+    int write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
+    printf("Error writing data: %d\n", write_e);
+    int send_e = altcp_output(pcb);
+    printf("Error sending data: %d\n", send_e);
 
     return ERR_OK;
 }
 
 static void on_tcp_error(void *arg, err_t e) {
-    generic_e = e;
+    printf("Generic TCP error: %d\n", e);
 }
 
 float read_onboard_temperature(const char unit) {
