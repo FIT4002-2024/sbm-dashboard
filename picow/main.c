@@ -15,20 +15,17 @@
 #include "lwip/dns.h"
 
 #define TEMPERATURE_UNITS 'C'
-#define TLS_CLIENT_HTTP_REQUEST  "GET / HTTP/1.1\r\n"
+#define TLS_CLIENT_HTTP_REQUEST  "GET / HTTP/1.1\r\n" \
+                                 "\r\n"
+
+static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e);
+int has_connected = 0;
+int write_e = 0;
+int send_e = 0;
+static void on_tcp_error(void *arg, err_t e);
+int generic_e = 0;
 
 float read_onboard_temperature(const char);
-
-static err_t on_tcp_connected(void *arg, struct altcp_pcb *pcb, err_t e) {
-    err_t write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
-
-    while (true) {
-        printf("IDK error: %d\n", write_e);
-        printf("Error writing data: %d\n", write_e);
-    }
-
-    return ERR_OK;
-}
 
 //
 // Just a proof of concept for bare-metal micro-processor / sensor integration.
@@ -60,19 +57,16 @@ int main() {
         return 1;
     }
     int tcp_e = 0;
-    ip_addr_t address; IP4_ADDR(&address, 192,168,1,9);
-    int write_e = 0;
-    int send_e = 0;
+    // TODO: make this a build parameter.
+    ip_addr_t address; IP4_ADDR(&address, 192,168,1,7);
+    int port = 8000;
     {
         cyw43_arch_lwip_begin();
 
         struct altcp_pcb* pcb = altcp_new(NULL);
-        tcp_e = altcp_connect(pcb, &address, 8000, NULL);
+        altcp_err(pcb, on_tcp_error);
+        tcp_e = altcp_connect(pcb, &address, port, on_tcp_connection_success);
         
-        sleep_ms(3000);
-        write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
-        send_e = altcp_output(pcb);
-
         cyw43_arch_lwip_end();
     }
     
@@ -84,11 +78,25 @@ int main() {
         sleep_ms(250);
         printf("WIFI country set error code: %d\n", country_e);
         printf("WIFI connection error code: %d\n", connect_e);
-        printf("IP: %s\n", ipaddr_ntoa(&address));
+        printf("IP: %s, port: %d\n", ipaddr_ntoa(&address), port);
         printf("TCP connection error code: %d\n", tcp_e);
+        printf("Has connected: %d\n", has_connected);
         printf("Error writing data: %d\n", write_e);
         printf("Error sending data: %d\n", send_e);
+        printf("Generic: %d\n", generic_e);
     }
+}
+
+static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e) {
+    has_connected = 1;
+    write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
+    send_e = altcp_output(pcb);
+
+    return ERR_OK;
+}
+
+static void on_tcp_error(void *arg, err_t e) {
+    generic_e = e;
 }
 
 float read_onboard_temperature(const char unit) {
