@@ -39,15 +39,15 @@ int main() {
         }
 
         if (input_character == 'g') {
-            printf("Have not received the input to go ahead.\n");
+            printf("Proceeding.\n");
             break;
         } else {
-            printf("Input needs to have a g in it.\n");
+            printf("To proceed, input needs to have a g in it.\n");
         }
     }
 
-    int country_e = cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA);
-    if (country_e) {
+    int wireless_e = cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA);
+    if (wireless_e) {
         printf("Failed to initialize cyw43 chip.\n");
         return 1;
     }
@@ -57,8 +57,8 @@ int main() {
     adc_set_temp_sensor_enabled(true);
     adc_select_input(4);
 
-    int connect_e = cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000);
-    if (connect_e) {
+    int wifi_e = cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000);
+    if (wifi_e) {
         printf("Failed to connect to the given WIFI network.\n");
         return 1;
     }
@@ -89,9 +89,10 @@ int main() {
 
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e) {
     int write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
-    printf("Error writing data: %d\n", write_e);
+    printf("Write error code: %d\n", write_e);
     int send_e = altcp_output(pcb);
-    printf("Error sending data: %d\n", send_e);
+    // TODO: check if stderr can be seperated on the client.
+    fprintf(stderr, "Send error code: %d\n", send_e);
 
     return ERR_OK;
 }
