@@ -1,27 +1,39 @@
 import { Request, Response } from "express";
 import {readImmediateReadings} from "../persistence/readings.persistence";
-import {read} from "fs";
-
 
 /**
  * Implements a server-sent event where it constantly streams the current minutes sensor readings
- * from the persistence store and returns them to the client so as long as the client wants to
- * connect and read this
+ * from the db and returns them to the client so as long as the client wants to
+ * connect and read this.
+ *
+ * Taken from https://stackoverflow.com/a/67184841
  *
  * @param req
  * @param res
  */
 export const streamImmediate = async (req: Request, res: Response) => {
 
-    // use server-sent-events https://stackoverflow.com/questions/34657222/how-to-use-server-sent-events-in-express-js
-    // https://medium.com/@jsameer/real-time-askbot-with-react-express-chatgpt-8bb465352a77
-
     // open stream
+    res.writeHead(200, {
+        "Connection": "keep-alive",
+        "Cache-Control": "no-cache",
+        "Content-Type": "text/event-stream"
+    });
 
-    // call persistence within it
+    // initial stream so client doesn't have to wait for 60 seconds
     const readings = await readImmediateReadings();
+    res.write(`data: ${JSON.stringify(readings)}\n\n`)
 
-    // close stream when connections ends
+    // stream data every 60 seconds
+    const MS_IN_S: number = 1000;
+    const stream: NodeJS.Timeout = setInterval(async () => {
+        const readings = await readImmediateReadings();
+        res.write(`data: ${JSON.stringify(readings)}\n\n`)
+    }, 60 * MS_IN_S)
 
-    res.status(200).send(readings);
+    // close stream when connections ends and stop the interval
+    res.on('close', () => {
+        clearInterval(stream);
+        res.end();
+    })
 }
