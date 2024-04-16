@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/adc.h"
@@ -9,7 +10,7 @@
 #include "lwip/dns.h"
 
 #define TEMPERATURE_UNITS 'C'
-#define TLS_CLIENT_HTTP_REQUEST  "GET / HTTP/1.1\r\n" \
+#define TLS_CLIENT_HTTP_REQUEST  "POST /some-endpoint HTTP/1.1\r\n" \
                                  "\r\n"
 
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e);
@@ -78,7 +79,6 @@ int main() {
         cyw43_arch_lwip_end();
     }
     
-    read_onboard_temperature(TEMPERATURE_UNITS);
     while (true) {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
         sleep_ms(250);
@@ -88,7 +88,27 @@ int main() {
 }
 
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e) {
-    int write_e = altcp_write(pcb, TLS_CLIENT_HTTP_REQUEST, strlen(TLS_CLIENT_HTTP_REQUEST), TCP_WRITE_FLAG_COPY);
+    float onboard_temperature = read_onboard_temperature(TEMPERATURE_UNITS);
+    // TODO: dynamic.
+    int max_length = 100;
+    char _onboard_temperature[max_length]; snprintf(_onboard_temperature, max_length, "%f", onboard_temperature);
+
+    // TODO: consider dynamic sizes- yep truncation station. Inb4 this is unsafe.
+    max_length = 1000; 
+    char sensor_payload[max_length]; 
+    strncpy(sensor_payload, TLS_CLIENT_HTTP_REQUEST, max_length); 
+    char* temperature_key = "onboardTemperature="; strncat(
+        sensor_payload, 
+        temperature_key,
+        max_length - strlen(TLS_CLIENT_HTTP_REQUEST)
+    ); 
+    strncat(
+        sensor_payload, 
+        _onboard_temperature,
+        max_length - strlen(TLS_CLIENT_HTTP_REQUEST) - strlen(temperature_key)
+    ); 
+     
+    int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
     printf("Write error code: %d\n", write_e);
     int send_e = altcp_output(pcb);
     // TODO: check if stderr can be seperated on the client.
