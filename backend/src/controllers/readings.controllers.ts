@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import {readImmediateReadings} from "../persistence/readings.persistence";
+import {read} from "fs";
 
 
 /**
@@ -17,7 +19,9 @@ export const streamImmediate = async (req: Request, res: Response) => {
     // open stream
 
     // call persistence within it
+    const readings = await readImmediateReadings();
 
     // close stream when connections ends
 
+    res.status(200).send(readings);
 }

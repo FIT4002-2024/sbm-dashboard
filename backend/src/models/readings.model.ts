@@ -1,4 +1,5 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
+import * as mongoose from "mongoose";
 
 /**
  * SensorReading represents a single record of a sensors reading for a given minute
@@ -11,8 +12,8 @@ import { Schema, model } from 'mongoose';
  *      @units: the unit of measurement for this reading e.g. deg, ppm
  *       @data: the raw measurement for this reading
  */
-interface ISensorReading {
-    timestamp: Date;
+export interface ISensorReading extends Document {
+    time: Date;
     type: string;
     sensorId: string;
     units: string;
@@ -20,23 +21,11 @@ interface ISensorReading {
 }
 
 const SensorReadingSchema = new Schema<ISensorReading>({
-    timestamp: Date,
+    time: Date,
     type: String,
     sensorId: String,
     units: String,
     data: Number
 })
 
-const SensorReadingModel = model<ISensorReading>('TimeSeries', SensorReadingSchema);
-
-/**
- * SensorAggregatedReading is an aggregation of sensor reading data over a given period to improve
- * read efficiency, preventing the need for aggregation on each read.
- */
-interface ISensorAggregatedReading {
-
-}
-
-
-export default SensorReadingModel;
-
+export const SensorReadingModel = model<ISensorReading>('SensorReading', SensorReadingSchema, "SensorReadings");
