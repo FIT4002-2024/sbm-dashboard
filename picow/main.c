@@ -9,10 +9,6 @@
 #include "lwip/pbuf.h"
 #include "lwip/dns.h"
 
-#define TEMPERATURE_UNITS 'C'
-#define TLS_CLIENT_HTTP_REQUEST  "POST /some-endpoint HTTP/1.1\r\n" \
-                                 "\r\n"
-
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e);
 static void on_tcp_error(void *arg, err_t e);
 
@@ -92,35 +88,29 @@ int main() {
 }
 
 static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e) {
-    float onboard_temperature = read_onboard_temperature(TEMPERATURE_UNITS);
-    // TODO: dynamic.
-    int max_length = 100;
-    char _onboard_temperature[max_length]; snprintf(_onboard_temperature, max_length, "%f", onboard_temperature);
+    float onboard_temperature = read_onboard_temperature('C');
+    // TODO: consider making this dynamic. And yes, truncation station.
+    int max_length = 800;
+    char body_payload[max_length]; snprintf(
+        body_payload, max_length, 
+        "onboardTemperature=%f\r\n", 
+        onboard_temperature
+    );
 
-    // TODO: consider dynamic sizes- yep truncation station. Inb4 this is unsafe.
-    max_length = 1000; 
-    char sensor_payload[max_length]; 
-    strncpy(sensor_payload, TLS_CLIENT_HTTP_REQUEST, max_length); 
-    char* temperature_key = "onboardTemperature="; strncat(
-        sensor_payload, 
-        temperature_key,
-        max_length - strlen(TLS_CLIENT_HTTP_REQUEST)
-    ); 
-    strncat(
-        sensor_payload, 
-        _onboard_temperature,
-        max_length - strlen(TLS_CLIENT_HTTP_REQUEST) - strlen(temperature_key)
-    ); 
-    char* seperation = "\r\n\r\n"; strncat(
-        sensor_payload, 
-        seperation,
-        max_length - strlen(TLS_CLIENT_HTTP_REQUEST) - strlen(temperature_key) - strlen(seperation)
-    ); 
+    int _max_length = 1000;
+    char* sensor_payload[_max_length]; snprintf(
+        sensor_payload, max_length, 
+        "POST /some-endpoint HTTP/1.1\r\n" \
+        "Content-Length: %d\r\n" \
+        "\r\n" \
+        "%s", 
+        strlen(body_payload), body_payload
+    );
 
-    int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
-    printf("Write error code: %d\n", write_e);
-    int send_e = altcp_output(pcb);
     // TODO: check if stderr can be seperated on the client.
+    int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
+    printf(stderr, "Write error code: %d\n", write_e);
+    int send_e = altcp_output(pcb);
     fprintf(stderr, "Send error code: %d\n", send_e);
 
     return ERR_OK;
@@ -130,7 +120,7 @@ static void on_tcp_error(void *arg, err_t e) {
     printf("Generic TCP error: %d\n", e);
 }
 
-float read_onboard_temperature(const char unit) {
+float read_onboard_temperature(char unit) {
     /* 12-bit conversion, assume max value == ADC_VREF == 3.3 V */
     const float conversionFactor = 3.3f / (1 << 12);
 
