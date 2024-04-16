@@ -1,4 +1,5 @@
 *.sw?
 *.venv/
-*/nodemodules/
+*/node_modules/
 *.env
+.idea
