@@ -66,15 +66,19 @@ int main() {
     {
         cyw43_arch_lwip_begin();
 
-        // TODO: free my mans.
-        struct altcp_pcb* pcb = altcp_new(NULL);
-        altcp_err(pcb, on_tcp_error);
-        // TODO: make this a build parameter.
-        ip_addr_t address; IP4_ADDR(&address, 192, 168, 1, 7);
-        int tcp_e = altcp_connect(pcb, &address, 8000, on_tcp_connection_success);
-        if (tcp_e != 0) {
-            printf("TCP connection error code: %d\n", tcp_e);
-        }
+        for (int i = 0; i < 10; i++) {
+            // TODO: free my mans.
+            struct altcp_pcb* pcb = altcp_new(NULL);
+            altcp_err(pcb, on_tcp_error);
+            // TODO: make this a build parameter.
+            ip_addr_t address; IP4_ADDR(&address, 192, 168, 1, 7);
+
+            sleep_ms(100);
+            int tcp_e = altcp_connect(pcb, &address, 8000, on_tcp_connection_success);
+            if (tcp_e != 0) {
+                printf("TCP connection error code: %d\n", tcp_e);
+            }
+        } 
         
         cyw43_arch_lwip_end();
     }
@@ -107,7 +111,12 @@ static err_t on_tcp_connection_success(void *arg, struct altcp_pcb *pcb, err_t e
         _onboard_temperature,
         max_length - strlen(TLS_CLIENT_HTTP_REQUEST) - strlen(temperature_key)
     ); 
-     
+    char* seperation = "\r\n\r\n"; strncat(
+        sensor_payload, 
+        seperation,
+        max_length - strlen(TLS_CLIENT_HTTP_REQUEST) - strlen(temperature_key) - strlen(seperation)
+    ); 
+
     int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
     printf("Write error code: %d\n", write_e);
     int send_e = altcp_output(pcb);
