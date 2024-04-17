@@ -56,11 +56,11 @@ int main() {
         printf("Failed to connect to the given WIFI network.\n");
         return 1;
     }
+    // TODO: free my mans.
     struct altcp_pcb* pcb = altcp_new(NULL);
     {
         cyw43_arch_lwip_begin();
 
-        // TODO: free my mans.
         void on_error(void *arg, err_t e) {
             printf("Generic TCP error: %d\n", e);
         }
@@ -104,11 +104,13 @@ int main() {
             strlen(body_payload), body_payload
         );
 
+        cyw43_arch_lwip_begin();
         // TODO: check if stderr can be seperated on the client.
         int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
         fprintf(stderr, "Write error code: %d\n", write_e);
         int send_e = altcp_output(pcb);
         fprintf(stderr, "Send error code: %d\n", send_e);
+        cyw43_arch_lwip_end();
     }
 }
 
