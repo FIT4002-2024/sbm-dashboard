@@ -56,50 +56,22 @@ int main() {
         printf("Failed to connect to the given WIFI network.\n");
         return 1;
     }
+    struct altcp_pcb* pcb = altcp_new(NULL);
     {
         cyw43_arch_lwip_begin();
 
         // TODO: free my mans.
-        struct altcp_pcb* pcb = altcp_new(NULL);
         void on_error(void *arg, err_t e) {
             printf("Generic TCP error: %d\n", e);
         }
         altcp_err(pcb, on_error);
         // TODO: make this a build parameter.
         ip_addr_t address; IP4_ADDR(&address, 192, 168, 1, 14);
-        err_t on_success(void *arg, struct altcp_pcb *pcb, err_t e) {
-            for (int i = 0; i < 10; i++) {
-                sleep_ms(750);
-                
-                float onboard_temperature = read_onboard_temperature('C');
-                // TODO: consider making this dynamic. And yes, truncation station.
-                int max_length = 800;
-                char body_payload[max_length]; snprintf(
-                    body_payload, max_length, 
-                    "onboardTemperature=%f\r\n", 
-                    onboard_temperature
-                );
-
-                int _max_length = 1000;
-                char sensor_payload[_max_length]; snprintf(
-                    sensor_payload, max_length, 
-                    "POST /some-endpoint HTTP/1.1\r\n" \
-                    "Content-Length: %d\r\n" \
-                    "\r\n" \
-                    "%s", 
-                    strlen(body_payload), body_payload
-                );
-
-                // TODO: check if stderr can be seperated on the client.
-                int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
-                fprintf(stderr, "Write error code: %d\n", write_e);
-                int send_e = altcp_output(pcb);
-                fprintf(stderr, "Send error code: %d\n", send_e);
-            }
-
-            return ERR_OK;
+        err_t on_connection(void *arg, struct altcp_pcb *pcb, err_t e) {
+            fprintf(stderr, "Connect callback error code: %d\n", e); 
+            return e;
         }
-        int tcp_e = altcp_connect(pcb, &address, 8000, on_success);
+        int tcp_e = altcp_connect(pcb, &address, 8000, on_connection);
         if (tcp_e != 0) {
             printf("TCP connection error code: %d\n", tcp_e);
         }
@@ -108,10 +80,35 @@ int main() {
     }
     
     while (true) {
+        sleep_ms(250);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
         sleep_ms(250);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-        sleep_ms(250);
+
+        float onboard_temperature = read_onboard_temperature('C');
+        // TODO: consider making this dynamic. And yes, truncation station.
+        int max_length = 800;
+        char body_payload[max_length]; snprintf(
+            body_payload, max_length, 
+            "onboardTemperature=%f\r\n", 
+            onboard_temperature
+        );
+
+        int _max_length = 1000;
+        char sensor_payload[_max_length]; snprintf(
+            sensor_payload, max_length, 
+            "POST /some-endpoint HTTP/1.1\r\n" \
+            "Content-Length: %d\r\n" \
+            "\r\n" \
+            "%s", 
+            strlen(body_payload), body_payload
+        );
+
+        // TODO: check if stderr can be seperated on the client.
+        int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
+        fprintf(stderr, "Write error code: %d\n", write_e);
+        int send_e = altcp_output(pcb);
+        fprintf(stderr, "Send error code: %d\n", send_e);
     }
 }
 
