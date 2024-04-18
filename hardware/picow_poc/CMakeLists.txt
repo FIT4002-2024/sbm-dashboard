@@ -8,7 +8,7 @@ set(PICO_SDK_FETCH_FROM_GIT on)
 # note: this must happen before project()
 include(pico_sdk_import.cmake)
 
-project(poc)
+project(picow_poc)
 
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -25,6 +25,10 @@ target_compile_definitions(
     main PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+    BACKEND_IP_PART_1=\"${BACKEND_IP_PART_1}\"
+    BACKEND_IP_PART_2=\"${BACKEND_IP_PART_2}\"
+    BACKEND_IP_PART_3=\"${BACKEND_IP_PART_3}\"
+    BACKEND_IP_PART_4=\"${BACKEND_IP_PART_4}\"
 )
 
 # Add pico_stdlib library which aggregates commonly used features

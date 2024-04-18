@@ -1,5 +1,7 @@
+// #include <stdlib.h> - this results in a runtime error btw.
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/adc.h"
@@ -40,8 +42,8 @@ int main() {
         }
     }
 
-    int wireless_e = cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA);
-    if (wireless_e) {
+    int e = cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRALIA);
+    if (e) {
         printf("Failed to initialize cyw43 chip.\n");
         return 1;
     }
@@ -51,12 +53,11 @@ int main() {
     adc_set_temp_sensor_enabled(true);
     adc_select_input(4);
 
-    int wifi_e = cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000);
-    if (wifi_e) {
+    e = cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000);
+    if (e) {
         printf("Failed to connect to the given WIFI network.\n");
         return 1;
     }
-    // TODO: free my mans.
     struct altcp_pcb* pcb = altcp_new(NULL);
     {
         cyw43_arch_lwip_begin();
@@ -65,15 +66,40 @@ int main() {
             printf("Generic TCP error: %d\n", e);
         }
         altcp_err(pcb, on_error);
-        // TODO: make this a build parameter.
-        ip_addr_t address; IP4_ADDR(&address, 192, 168, 1, 14);
+        errno = 0; long int ip_part_1 = strtol(BACKEND_IP_PART_1, NULL, 10);         
+        if (errno) {
+            printf("Failed to convert part 1 of IP.\n");
+            return 1;
+        } 
+        errno = 0; long int ip_part_2 = strtol(BACKEND_IP_PART_2, NULL, 10);         
+        if (errno) {
+            printf("Failed to convert part 2 of IP.\n");
+            return 1;
+        } 
+        errno = 0; long int ip_part_3 = strtol(BACKEND_IP_PART_3, NULL, 10);         
+        if (errno) {
+            printf("Failed to convert part 3 of IP.\n");
+            return 1;
+        } 
+        errno = 0; long int ip_part_4 = strtol(BACKEND_IP_PART_4, NULL, 10);         
+        if (errno) {
+            printf("Failed to convert part 4 of IP.\n");
+            return 1;
+        } 
+        ip_addr_t address; IP4_ADDR(
+            &address, 
+            ip_part_1 & 0xFF, 
+            ip_part_2 & 0xFF, 
+            ip_part_3 & 0xFF, 
+            ip_part_4 & 0xFF
+        );
         err_t on_connection(void *arg, struct altcp_pcb *pcb, err_t e) {
             fprintf(stderr, "Connect callback error code: %d\n", e); 
             return e;
         }
-        int tcp_e = altcp_connect(pcb, &address, 8000, on_connection);
-        if (tcp_e != 0) {
-            printf("TCP connection error code: %d\n", tcp_e);
+        e = altcp_connect(pcb, &address, 8000, on_connection);
+        if (e != 0) {
+            printf("TCP connection error code: %d\n", e);
         }
         
         cyw43_arch_lwip_end();
@@ -106,16 +132,17 @@ int main() {
 
         cyw43_arch_lwip_begin();
         // TODO: check if stderr can be seperated on the client.
-        int write_e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
-        fprintf(stderr, "Write error code: %d\n", write_e);
-        int send_e = altcp_output(pcb);
-        fprintf(stderr, "Send error code: %d\n", send_e);
+        e = altcp_write(pcb, sensor_payload, strlen(sensor_payload), TCP_WRITE_FLAG_COPY);
+        fprintf(stderr, "Write error code: %d\n", e);
+        e = altcp_output(pcb);
+        fprintf(stderr, "Send error code: %d\n", e);
         cyw43_arch_lwip_end();
     }
+    
+    altcp_close(pcb);
 }
 
 float read_onboard_temperature(char unit) {
-    /* 12-bit conversion, assume max value == ADC_VREF == 3.3 V */
     const float conversionFactor = 3.3f / (1 << 12);
 
     float adc = (float)adc_read() * conversionFactor;
