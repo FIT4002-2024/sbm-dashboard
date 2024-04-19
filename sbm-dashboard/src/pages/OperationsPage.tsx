@@ -1,7 +1,12 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Carousel, Button } from "antd";
 
 import SensorGrid from "../components/operations/SensorGrid";
+
+/**
+ * OperationsPage component
+ * This component is responsible for rendering the Operations page and manages the connection to a Server-Sent Events (SSE) endpoint to stream sensor data.
+ */
 
 const contentStyle: React.CSSProperties = {
     margin: 0,
@@ -20,7 +25,9 @@ const buttonContainerStyle: React.CSSProperties = {
 
 const OperationsPage: React.FC = () => {
     const carouselRef = useRef<any>(null); // Ref for accessing the Carousel component
-
+    const [sensorData, setSensorData] = useState([]); // State to store the sensor data fetched from the backend
+    const eventSourceRef = useRef<EventSource | null>(null); // Ref to hold the SSE connection
+    
     const handleSensorClick = (factoryName: string, sensorType: string) => {
         const nextSlideIndex = calculateNextSlideIndex(factoryName, sensorType);
         if (carouselRef.current) {
