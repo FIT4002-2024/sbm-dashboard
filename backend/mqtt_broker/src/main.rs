@@ -24,9 +24,9 @@ fn main() {
     // external_auth function / closure signature must be:
     // async fn(ClientId, AuthUser, AuthPass) -> bool
     // type for ClientId, AuthUser and AuthPass is String
-    server.connections.external_auth = Some(
-        std::sync::Arc::new(auth)
-    );
+//    server.connections.external_auth = Some(
+//        std::sync::Arc::new(auth)
+//    );
 
     // or you can pass closure
     // server.set_auth_handler(|_client_id, _username, _password| async {
