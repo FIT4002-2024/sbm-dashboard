@@ -27,7 +27,28 @@ const OperationsPage: React.FC = () => {
     const carouselRef = useRef<any>(null); // Ref for accessing the Carousel component
     const [sensorData, setSensorData] = useState([]); // State to store the sensor data fetched from the backend
     const eventSourceRef = useRef<EventSource | null>(null); // Ref to hold the SSE connection
-    
+
+    useEffect(() => {
+        // URL of the SSE endpoint
+        //const sseUrl = 'http://localhost:27017/api/sensors/stream-immediate';
+
+        // Initialize the SSE connection to the backend
+        eventSourceRef.current = new EventSource(sseUrl);
+
+        // Event handler for incoming SSE messages
+        eventSourceRef.current.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            setSensorData(data); // Update the sensor data state with the new data
+        };
+
+        // Cleanup function to close the SSE connection when the component unmounts
+        return () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close(); // Close the connection
+            }
+        };
+    }, []);
+
     const handleSensorClick = (factoryName: string, sensorType: string) => {
         const nextSlideIndex = calculateNextSlideIndex(factoryName, sensorType);
         if (carouselRef.current) {
