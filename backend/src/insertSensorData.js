@@ -14,7 +14,7 @@ mongoose
 	.then(() => console.log('MongoDB connected'))
 	.catch((err) => console.error('MongoDB connection error:', err));
 
-// Sample data array mimicking the data structure you provided
+// Sample data array
 const sensorDataArray = [
 	{ time: new Date('2024-04-16T16:23:10.000Z'), type: 'humidity', sensorId: 'HALFKJN', units: 'gpk', data: 56 },
 	{ time: new Date('2024-04-16T16:24:10.000Z'), type: 'humidity', sensorId: 'HALFKJN', units: 'gpk', data: 56 }
