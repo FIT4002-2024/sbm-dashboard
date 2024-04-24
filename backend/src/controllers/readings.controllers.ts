@@ -1,39 +1,61 @@
 import { Request, Response } from "express";
-import {readImmediateReadings} from "../persistence/readings.persistence";
+import { readImmediateReadings } from "../persistence/readings.persistence";
 
 /**
- * Implements a server-sent event where it constantly streams the current minutes sensor readings
- * from the db and returns them to the client so as long as the client wants to
- * connect and read this.
- *
- * Taken from https://stackoverflow.com/a/67184841
- *
- * @param req
- * @param res
+ * Implements a server-sent event (SSE) endpoint to simulate the streaming of sensor readings stored in the database.
+ * This approach simulates real-time updates by cyclically sending existing database entries as if they are arriving live.
+ * Additionally, sends the first reading immediately upon connection.
+ * 
+ * @param req - The HTTP request object.
+ * @param res - The HTTP response object used to send SSE.
  */
 export const streamImmediate = async (req: Request, res: Response) => {
-
-    // open stream
     res.writeHead(200, {
-        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        "Content-Type": "text/event-stream"
+        "Connection": "keep-alive",
     });
 
-    // initial stream so client doesn't have to wait for 60 seconds
-    const readings = await readImmediateReadings();
-    res.write(`data: ${JSON.stringify(readings)}\n\n`)
+    let index = 0; // Index to keep track of the current reading being sent
 
-    // stream data every 60 seconds
-    const MS_IN_S: number = 1000;
-    const stream: NodeJS.Timeout = setInterval(async () => {
-        const readings = await readImmediateReadings();
-        res.write(`data: ${JSON.stringify(readings)}\n\n`)
-    }, 60 * MS_IN_S)
+    // Function to fetch all current sensor readings from the database
+    const fetchAllSensorReadings = async () => {
+        try {
+            return await readImmediateReadings();
+        } catch (error) {
+            console.error('Error fetching sensor readings:', error);
+            return []; // Return an empty array in case of error
+        }
+    };
 
-    // close stream when connections ends and stop the interval
-    res.on('close', () => {
-        clearInterval(stream);
+    
+    // Fetch all readings once and cycle through them
+    const allReadings = await fetchAllSensorReadings();
+
+    if (allReadings.length > 0) {
+        // Send the first reading immediately
+        const initialReading = allReadings[0];
+        res.write(`data: ${JSON.stringify([initialReading])}\n\n`);
+        index = 1; // Start from the next reading for periodic updates
+    }
+    
+
+    // Function to periodically send data
+    const intervalId = setInterval(() => {
+        if (allReadings.length > 0) {
+            const reading = allReadings[index % allReadings.length]; // Cycle through readings
+            res.write(`data: ${JSON.stringify([reading])}\n\n`); // Send current reading
+            index++; // Move to the next reading
+        } else {
+            res.write(': No data available\n\n');
+        }
+    }, 1000); // Send data every 60 seconds
+
+    // Clean up when client closes connection
+    req.on('close', () => {
+        clearInterval(intervalId);
         res.end();
-    })
-}
+        console.log('Stopped sending events as client closed the connection');
+    });
+};
+
