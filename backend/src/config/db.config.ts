@@ -5,12 +5,15 @@ dotenv.config();
 // Constructing the connection string using environment variables
 console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_USER, process.env.DB_PASSWORD, process.env.DB_NAME);
 
-const uri: string = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
-// Connection options
-const options: mongoose.ConnectOptions = {
-    maxPoolSize: 10, // Limits the number of connections in the MongoDB connection pool
-    authSource: 'admin' // Specifies the database that should be used to authenticate (if required)
+
+// Connection options with new parser and unified topology
+const options = {
+    maxPoolSize: 10,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    authSource: 'admin'
 };
 
 // Async function to establish a database connection
