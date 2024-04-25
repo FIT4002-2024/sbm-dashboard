@@ -23,22 +23,54 @@ const buttonContainerStyle: React.CSSProperties = {
     transform: 'translateX(-50%)', // Center the button horizontally
 };
 
+interface SensorDataType {
+    factoryName: string;
+    sensorId: string;
+    sensorType: string;
+    currentValue: number;
+    unit: string;
+    highValue: number;
+    lowValue: number;
+}
+
 const OperationsPage: React.FC = () => {
     const carouselRef = useRef<any>(null); // Ref for accessing the Carousel component
-    const [sensorData, setSensorData] = useState([]); // State to store the sensor data fetched from the backend
+    const [sensorData, setSensorData] = useState<SensorDataType[]>([]); // State to store the sensor data fetched from the backend
     const eventSourceRef = useRef<EventSource | null>(null); // Ref to hold the SSE connection
+    const [connectionStatus, setConnectionStatus] = useState('Connecting...');
 
     useEffect(() => {
         // URL of the SSE endpoint
-        //const sseUrl = 'http://localhost:27017/api/sensors/stream-immediate';
+        const sseUrl = 'http://localhost:4000/api/sensors/stream-immediate';
 
+        console.log("Attempting to connect to SSE at:", sseUrl);
         // Initialize the SSE connection to the backend
         eventSourceRef.current = new EventSource(sseUrl);
 
         // Event handler for incoming SSE messages
         eventSourceRef.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setSensorData(data); // Update the sensor data state with the new data
+            const newData = JSON.parse(event.data);
+           // Update state by either adding a new sensor or updating an existing one
+           setSensorData(currentData => {
+            const updatedData = newData.map((item: any) => ({
+                factoryName: "Factory 1",
+                sensorId: item.sensorId,
+                sensorType: item.type,
+                currentValue: item.data,
+                unit: item.units,
+                highValue: 70, // Example static value
+                lowValue: 50   // Example static value
+            }));
+
+            return updateSensorData(currentData, updatedData);
+        });
+    };
+
+        eventSourceRef.current.onopen = () => {
+            setConnectionStatus('Connected');
+        };
+        eventSourceRef.current.onerror = (error) => {
+            setConnectionStatus('Disconnected. Reconnecting...');
         };
 
         // Cleanup function to close the SSE connection when the component unmounts
@@ -48,6 +80,18 @@ const OperationsPage: React.FC = () => {
             }
         };
     }, []);
+
+    // Function to update sensor data by type
+    const updateSensorData = (currentData: SensorDataType[], newData: SensorDataType[]) => {
+        const dataMap = new Map(currentData.map(sensor => [sensor.sensorId, sensor]));
+
+        // Update existing entries or add new ones
+        newData.forEach(sensor => {
+            dataMap.set(sensor.sensorId, sensor);
+        });
+
+        return Array.from(dataMap.values());
+    };
 
     const handleSensorClick = (factoryName: string, sensorType: string) => {
         const nextSlideIndex = calculateNextSlideIndex(factoryName, sensorType);
@@ -94,7 +138,7 @@ const OperationsPage: React.FC = () => {
             >
                 <div>
                     <h3 style={contentStyle}>
-                        <SensorGrid onSensorClick={handleSensorClick} />
+                        <SensorGrid sensorData={sensorData} onSensorClick={(factoryName, sensorType) => console.log(factoryName, sensorType)} />
                     </h3>
                 </div>
                 <div style={{ position: 'relative' }}>
