@@ -2,94 +2,34 @@ import React from "react";
 import { Flex } from "antd";
 import SensorInstance from "./SensorInstance";
 
-interface SensorGridProps {
-    onSensorClick: (factoryName: string, sensorType: string) => void;
+interface SensorData {
+    factoryName: string;
+    sensorId: string;
+    sensorType: string;
+    currentValue: number;
+    unit: string;
+    highValue: number;
+    lowValue: number;
 }
 
-const SensorGrid: React.FC<SensorGridProps> = ({ onSensorClick }) => {
+interface SensorGridProps {
+    sensorData: SensorData[];
+    onSensorClick: (factoryName: string, sensorId: string) => void;
+}
+
+const SensorGrid: React.FC<SensorGridProps> = ({ sensorData, onSensorClick }) => {
     return (
-        <div>
-            <Flex wrap="wrap" gap="large" justify="center" style={{ padding: '10px'}}>
+        <Flex wrap="wrap" gap="large" justify="center" style={{ padding: '10px'}}>
+            {sensorData.map(sensor => (
                 <div
+                    key={`${sensor.factoryName}-${sensor.sensorId}`}
                     style={{ cursor: 'pointer' }}
-                    onClick={() => onSensorClick("Factory 1", "Temperature Sensor")}
+                    onClick={() => onSensorClick(sensor.factoryName, sensor.sensorId)}
                 >
-                    <SensorInstance
-                        factoryName="Loading Dock"
-                        sensorType="Temperature Sensor"
-                        currentValue={32}
-                        unit="°C"
-                        highValue={40}
-                        lowValue={22}
-                    />
+                    <SensorInstance {...sensor} />
                 </div>
-                <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onSensorClick("Factory 2", "Pressure Sensor")}
-                >
-                    <SensorInstance
-                        factoryName="Loading Dock"
-                        sensorType="Humidity Sensor"
-                        currentValue={60}
-                        unit="%"
-                        highValue={80}
-                        lowValue={40}
-                    />
-                </div>
-                <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onSensorClick("Factory 1", "Humidity Sensor")}
-                >
-                    <SensorInstance
-                        factoryName="Warehouse"
-                        sensorType="Temperature Sensor"
-                        currentValue={24}
-                        unit="°C"
-                        highValue={38}
-                        lowValue={22}
-                    />
-                </div>
-                <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onSensorClick("Factory 2", "Pressure Sensor")}
-                >
-                    <SensorInstance
-                        factoryName="Warehouse"
-                        sensorType="Humidity Sensor"
-                        currentValue={60}
-                        unit="%"
-                        highValue={80}
-                        lowValue={40}
-                    />
-                </div>
-                <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onSensorClick("Factory 1", "Humidity Sensor")}
-                >
-                    <SensorInstance
-                        factoryName="Freezer Room"
-                        sensorType="Temperature Sensor"
-                        currentValue={-4}
-                        unit="°C"
-                        highValue={4}
-                        lowValue={-18}
-                    />
-                </div>
-                <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onSensorClick("Factory 1", "Humidity Sensor")}
-                >
-                    <SensorInstance
-                        factoryName="Freezer Room"
-                        sensorType="Pressure Sensor"
-                        currentValue={23}
-                        unit="Psi"
-                        highValue={40}
-                        lowValue={15}
-                    />
-                </div>
-            </Flex>
-        </div>
+            ))}
+        </Flex>
     );
 };
 
