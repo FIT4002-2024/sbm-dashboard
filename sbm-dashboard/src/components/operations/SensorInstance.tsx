@@ -4,6 +4,7 @@ import { ExclamationCircleOutlined, TrophyOutlined } from '@ant-design/icons';
 
 interface SensorProps {
     factoryName: string;
+    sensorId: string;
     sensorType: string;
     currentValue: number;
     unit: string;
@@ -13,6 +14,7 @@ interface SensorProps {
 
 const SensorInstance: React.FC<SensorProps> = ({
     factoryName,
+    sensorId,
     sensorType,
     currentValue,
     unit,
@@ -30,7 +32,7 @@ const SensorInstance: React.FC<SensorProps> = ({
                     <Col flex={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
                         <div>
                             <h2 style={{ padding: 0, margin: 0 }}>{factoryName}</h2>
-                            <p style={{ padding: 0, margin: 0 }}>{sensorType}</p>
+                            <p style={{ padding: 0, margin: 0 }}>{sensorId + "-" + sensorType}</p>
                         </div>
                     </Col>
                     <Col flex={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
