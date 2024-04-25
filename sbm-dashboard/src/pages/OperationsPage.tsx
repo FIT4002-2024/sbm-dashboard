@@ -93,8 +93,8 @@ const OperationsPage: React.FC = () => {
         return Array.from(dataMap.values());
     };
 
-    const handleSensorClick = (factoryName: string, sensorType: string) => {
-        const nextSlideIndex = calculateNextSlideIndex(factoryName, sensorType);
+    const handleSensorClick = (factoryName: string, sensorId: string) => {
+        const nextSlideIndex = calculateNextSlideIndex(factoryName, sensorId);
         if (carouselRef.current) {
             carouselRef.current.goTo(nextSlideIndex);
         }
@@ -138,7 +138,7 @@ const OperationsPage: React.FC = () => {
             >
                 <div>
                     <h3 style={contentStyle}>
-                        <SensorGrid sensorData={sensorData} onSensorClick={(factoryName, sensorType) => console.log(factoryName, sensorType)} />
+                        <SensorGrid sensorData={sensorData} onSensorClick={handleSensorClick} />
                     </h3>
                 </div>
                 <div style={{ position: 'relative' }}>
