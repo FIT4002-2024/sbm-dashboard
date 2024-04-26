@@ -33,6 +33,16 @@ interface SensorDataType {
     lowValue: number;
 }
 
+interface IncomingSensorData {
+    _id: string;
+    time: string;
+    type: string;
+    sensorId: string;
+    units: string;
+    data: number;
+    __v: number;
+}
+
 const OperationsPage: React.FC = () => {
     const carouselRef = useRef<HTMLDivElement | null>(null);  // Ref for accessing the Carousel component
     const [sensorData, setSensorData] = useState<SensorDataType[]>([]); // State to store the sensor data fetched from the backend
@@ -48,21 +58,21 @@ const OperationsPage: React.FC = () => {
 
         // Event handler for incoming SSE messages
         eventSourceRef.current.onmessage = (event: MessageEvent) => {
-            
-            const newData: SensorDataType[] = JSON.parse(event.data);
-            
+
+            const newData: IncomingSensorData[] = JSON.parse(event.data);
+            console.log("Received sensor data:", newData);
             // Update state by either adding a new sensor or updating an existing one
             setSensorData(currentData => {
                 const updatedData = newData.map((item) => ({
                     factoryName: "Factory 1",
                     sensorId: item.sensorId,
-                    sensorType: item.sensorType as string,
-                    currentValue: item.currentValue,
-                    unit: item.unit,
+                    sensorType: item.type || "N/A",
+                    currentValue: item.data ?? "N/A",
+                    unit: item.units || "N/A",
                     highValue: 70, // Example static value
                     lowValue: 50   // Example static value
                 }));
-
+                console.log("Updated sensor data:", updatedData);
                 return updateSensorData(currentData, updatedData);
             });
         };
