@@ -73,11 +73,6 @@ int main() {
         fprintf(stderr, "Failed to convert BACKEND_IP to struct.\n");
         return 1;
     } 
-    struct altcp_pcb* pcb = altcp_new(NULL);
-    if (pcb == NULL) {
-        fprintf(stderr, "Failed to initialize a TCP PCB.\n");
-        return 1;
-    } 
     mqtt_client_t* mqtt_client = mqtt_client_new();
     if (mqtt_client == NULL) {
         fprintf(stderr, "Failed to initialize a MQTT client.\n");
@@ -85,22 +80,11 @@ int main() {
     } 
     {
         cyw43_arch_lwip_begin();
-
-        void on_error(void *arg, err_t e) {
-            printf("Generic TCP error: %d\n", e);
-        }
-        altcp_err(pcb, on_error);
         e = mqtt_connect(mqtt_client, &backend_ip); 
         if (e != 0) {
             fprintf(stderr, "MQTT connect error code: %d\n", e); 
             return e;
         }
-        err_t on_connection(void *arg, struct altcp_pcb *pcb, err_t e) {
-            fprintf(stderr, "Connect callback error code: %d\n", e); 
-            return e;
-        }
-        int _ = altcp_connect(pcb, &backend_ip, 8000, on_connection);
-        
         cyw43_arch_lwip_end();
     }
     
@@ -111,11 +95,9 @@ int main() {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         
         int _ = send_temperature_via_mqtt(mqtt_client, &backend_ip);
-        _ = send_temperature_via_http(pcb);
     }
     
     if (mqtt_client != NULL) mqtt_client_free(mqtt_client);
-    altcp_close(pcb);
 }
 
 float read_onboard_temperature(char unit) {
@@ -140,8 +122,10 @@ int mqtt_connect(mqtt_client_t* mqtt_client, ip_addr_t* backend_ip) {
     struct mqtt_connect_client_info_t client_info;
     memset(&client_info, 0, sizeof(client_info));
     client_info.client_id = "picow_poc";
+    client_info.client_user = "test-user";
+    client_info.client_pass = "test-password";
     client_info.keep_alive = 10;
-    int e = mqtt_client_connect(mqtt_client, backend_ip, 1883, on_connection, NULL, &client_info);
+    int e = mqtt_client_connect(mqtt_client, backend_ip, 1885, on_connection, NULL, &client_info);
     if (e != ERR_OK) {
         fprintf(stderr, "Failed to connect to MQTT broker.\n");
         return 1;
@@ -189,8 +173,13 @@ int send_temperature_via_mqtt(mqtt_client_t* mqtt_client, ip_addr_t* backend_ip)
     float onboard_temperature = read_onboard_temperature('C');
     int max_length = 800;
     char body_payload[max_length]; snprintf(
-        body_payload, max_length, 
-        "onboardTemperature=%f\r\n", 
+        body_payload, max_length, "{"
+            "\"time\": \"2012-04-23T18:25:43.511Z\","
+            "\"type\": \"temperature\","
+            "\"sensorId\": \"picow_poc\","
+            "\"units\": \"°C\","
+            "\"data\": \"%f\""
+        "}", 
         onboard_temperature
     );
 
@@ -200,7 +189,7 @@ int send_temperature_via_mqtt(mqtt_client_t* mqtt_client, ip_addr_t* backend_ip)
     cyw43_arch_lwip_begin();
     int e = mqtt_publish(
         mqtt_client, 
-        "temperature", 
+        "ibm/temperature", 
         body_payload, strlen(body_payload), 
         2, 0, on_publish, NULL
     );
