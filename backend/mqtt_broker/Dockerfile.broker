@@ -1,0 +1,40 @@
+FROM ubuntu:24.04
+
+RUN apt-get update
+
+RUN apt-get install -y iputils-ping git make wget vim gcc 
+ENV CGO_ENABLED 1
+RUN wget https://go.dev/dl/go1.21.4.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go1.21.4.linux-amd64.tar.gz
+ENV PATH "${PATH}":/usr/local/go/bin
+
+RUN apt-get install -y mosquitto-dev libmosquitto-dev
+RUN apt-get install -y libwebsockets-dev libc-ares2 libc-ares-dev openssl uuid uuid-dev
+
+RUN git clone https://github.com/iegomez/mosquitto-go-auth.git
+WORKDIR mosquitto-go-auth
+RUN git checkout 2.1.0 \
+    && make \
+    && mv go-auth.so /etc/mosquitto/conf.d/
+RUN cat <<-EOF > /etc/mosquitto/conf.d/go-auth.conf
+listener 1885 0.0.0.0
+
+auth_plugin /etc/mosquitto/conf.d/go-auth.so
+
+auth_opt_log_level debug
+
+auth_opt_backends mongo 
+
+auth_opt_files_register user, acl
+
+auth_opt_mongo_host mqtt_auth
+EOF
+
+RUN useradd broker
+RUN mkdir -p /run/mosquitto/ && chown -R broker:broker /run/mosquitto/
+RUN mkdir -p /var/lib/mosquitto/ && chown -R broker:broker /var/lib/mosquitto/
+RUN mkdir -p /var/log/mosquitto/ && chown -R broker:broker /var/log/mosquitto/
+RUN chown -R broker:broker /etc/mosquitto/
+USER broker 
+
+ENTRYPOINT ["mosquitto", "-c", "/etc/mosquitto/mosquitto.conf"]
