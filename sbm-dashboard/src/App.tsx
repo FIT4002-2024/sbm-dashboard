@@ -2,15 +2,13 @@ import { useState } from 'react'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
 } from '@ant-design/icons'
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'
-import { Layout, Menu, Button, theme } from 'antd'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { Layout, Button, theme } from 'antd'
 import './App.css'
 
 import OperationsPage from './pages/OperationsPage'
+import SideNavigation from './components/global/SideNavigation'
 
 const { Header, Sider, Content } = Layout
 
@@ -22,30 +20,24 @@ function App() {
 
   return (
     <Router>
-      <Layout id='main-content' style={{ minHeight: '100vh', width: '100%', margin: '0', padding: '0'}}>
-        <Sider id='side-nav-bar' trigger={null} collapsible collapsed={collapsed}>
-          <div className='logo'/>
-            <Menu
-              theme='dark'
-              mode='inline'
-              defaultSelectedKeys={['1']}
-            >
-            <Menu.Item key='1' icon={<UserOutlined />}>
-              <Link to='/'>Operations</Link>
-            </Menu.Item>  
-            <Menu.Item key='2' icon={<VideoCameraOutlined />}>
-              <Link to='/dynamic-scheduling'>Dynamic Scheduling</Link>
-            </Menu.Item>  
-            <Menu.Item key='3' icon={<UploadOutlined />}>
-              <Link to='/sales-forecast'>Sales Forecast</Link>
-            </Menu.Item>  
-            <Menu.Item key='4' icon={<UserOutlined />}>
-              <Link to='/accounts'>Accounts</Link>
-            </Menu.Item>  
-            </Menu>
+      <Layout id='main-content' 
+        style={{
+          minHeight: '100vh', 
+          width: '100%', 
+          margin: '0', 
+          padding: '0'
+          }}>
+        <Sider id='side-nav-bar' trigger={null} collapsible collapsed={true} width={250}>
+          <SideNavigation /> 
         </Sider>
         <Layout>
-          <Header id='top-nav-bar' style={{ padding: 0, background: colorBgContainer, display: 'flex' }}>
+          <Header id='top-nav-bar' 
+            style={{ 
+              padding: 0, 
+              background: colorBgContainer, 
+              display: 'flex',
+              flexDirection: 'row-reverse',
+              }}>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -73,6 +65,11 @@ function App() {
             </Routes>
           </Content>
         </Layout>
+        <Sider id='side-alerts-bar' trigger={null} collapsible collapsed={collapsed} width={250}>
+          <div>
+            {collapsed ? <h2>Alerts</h2> : <h1>Alerts</h1>}
+          </div>
+        </Sider>
       </Layout>
     </Router>
   )

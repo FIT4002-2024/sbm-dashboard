@@ -1,8 +1,17 @@
 import express from "express";
-import {streamImmediate} from '../controllers/readings.controllers';
+import { streamImmediate } from '../controllers/readings.controllers';
+import cors from 'cors';  // Import CORS module
 
 const router = express.Router();
 
-router.get('/stream-immediate', streamImmediate);
+// Applying CORS to the specific route
+// Configure CORS to allow requests from your specific frontend address
+const corsOptions = {
+    origin: 'http://localhost:5173', // Allow only this origin to access
+    optionsSuccessStatus: 200
+};
+
+router.get('/stream-immediate', cors(corsOptions), streamImmediate);
 
 export default router;
+
