@@ -1,2 +1,4 @@
 FROM mongo:7.0
 EXPOSE 27017
+
+COPY add_test_users.sh /tmp/

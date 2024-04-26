@@ -1,4 +1,5 @@
 FROM ubuntu:24.04
+EXPOSE 1885
 
 RUN apt-get update
 
@@ -20,8 +21,6 @@ RUN cat <<-EOF > /etc/mosquitto/conf.d/go-auth.conf
 listener 1885 0.0.0.0
 
 auth_plugin /etc/mosquitto/conf.d/go-auth.so
-
-auth_opt_log_level debug
 
 auth_opt_backends mongo 
 
