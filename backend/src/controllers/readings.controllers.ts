@@ -20,6 +20,23 @@ export const streamImmediate = async (req: Request, res: Response) => {
     const startTime = new Date("2024-04-16T16:22:00Z"); // Start a bit before the first data point
     const endTime = new Date("2024-04-16T16:29:00Z");   // End a bit after the last data point
     let currentTime = new Date(startTime); // Initialise the current time to the start time
+    
+    try {
+        // Fetch the latest sensor readings immediately upon connection
+        const latestReadings = await readImmediateReadings(currentTime, endTime);
+        
+        if (latestReadings.length > 0) {
+            // Send the latest readings to the client
+            res.write(`data: ${JSON.stringify(latestReadings)}\n\n`);
+        } else {
+            // If no data available, send a message indicating so
+            res.write(': No data available\n\n');
+        }
+    } catch (error) {
+        console.error('Error fetching sensor readings:', error);
+        res.status(500).send("Failed to fetch data");
+        return;
+    }
 
     // Function to fetch all sensor readings from the database within the specified time range
     const fetchSensorReadings = async () => {
