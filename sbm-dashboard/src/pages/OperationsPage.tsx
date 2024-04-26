@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Carousel, Button } from "antd";
+import { CarouselRef } from 'antd/lib/carousel'; // Importing CarouselRef type
 
 import SensorGrid from "../components/operations/SensorGrid";
 
@@ -44,7 +45,7 @@ interface IncomingSensorData {
 }
 
 const OperationsPage: React.FC = () => {
-    const carouselRef = useRef<HTMLDivElement | null>(null);  // Ref for accessing the Carousel component
+    const carouselRef = useRef<CarouselRef | null>(null);  // Ref for accessing the Carousel component
     const [sensorData, setSensorData] = useState<SensorDataType[]>([]); // State to store the sensor data fetched from the backend
     const eventSourceRef = useRef<EventSource | null>(null); // Ref to hold the SSE connection
 
