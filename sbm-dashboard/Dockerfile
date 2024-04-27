@@ -8,5 +8,6 @@ RUN npm install typescript -g
 RUN npm install
 COPY . .
 RUN tsc
+EXPOSE 5173
+ENV PORT 5173
 CMD ["npm","run","dev"]
-
