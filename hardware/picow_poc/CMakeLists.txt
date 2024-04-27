@@ -25,10 +25,7 @@ target_compile_definitions(
     main PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
-    BACKEND_IP_PART_1=\"${BACKEND_IP_PART_1}\"
-    BACKEND_IP_PART_2=\"${BACKEND_IP_PART_2}\"
-    BACKEND_IP_PART_3=\"${BACKEND_IP_PART_3}\"
-    BACKEND_IP_PART_4=\"${BACKEND_IP_PART_4}\"
+    BACKEND_IP=\"${BACKEND_IP}\"
 )
 
 # Add pico_stdlib library which aggregates commonly used features
@@ -39,6 +36,7 @@ target_link_libraries(
     hardware_adc
     pico_cyw43_arch_lwip_threadsafe_background
     pico_lwip_mbedtls
+    pico_lwip_mqtt
     pico_mbedtls
 )
 target_include_directories(main PRIVATE
