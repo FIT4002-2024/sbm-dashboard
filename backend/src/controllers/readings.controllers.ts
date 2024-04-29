@@ -35,6 +35,7 @@ export const streamImmediate = async (req: Request, res: Response) => {
     res.on('close', () => {
         clearInterval(stream);
         res.end();
+        
     })
 }
 
