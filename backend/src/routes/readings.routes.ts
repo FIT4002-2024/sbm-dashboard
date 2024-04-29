@@ -1,6 +1,5 @@
 import express from "express";
-import {streamImmediate} from '../controllers/readings.controllers';
-import {getTimeseries} from "../controllers/timeseries.controllers";
+import {streamImmediate, getTimeseries} from '../controllers/readings.controllers';
 
 const router = express.Router();
 
