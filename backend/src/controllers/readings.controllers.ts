@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import {readImmediateReadings} from "../persistence/readings.persistence";
-import {SensorReadingModel} from "../models/readings.model";
+import {readImmediateReadings, readTimeSeriesReadings} from "../persistence/readings.persistence";
 
 /**
  * Implements a server-sent event where it constantly streams the current minutes sensor readings
@@ -39,41 +38,44 @@ export const streamImmediate = async (req: Request, res: Response) => {
     })
 }
 
-
-export const getTimeseries = async (req: Request, res: Response) => {
+/**
+ * Implements a server-sent event where it constantly streams the specified sensors readings
+ * for the past x units of time where x is the scope e.g. daily, weekly and returns it to the
+ * client as long as the connection remains open
+ *
+ * Taken from https://stackoverflow.com/a/67184841
+ *
+ * @param req
+ * @param res
+ */
+export const streamTimeSeries = async (req: Request, res: Response) => {
     const { sensorId, scope } = req.params;
 
-    // Validate scope
-    const validScopes = ['hour', 'day', 'week'];
-    if (!validScopes.includes(scope)) {
-        return res.status(400).json({ error: 'Invalid scope. Must be one of: hour, day, week.' });
+    if (!['hour', 'day', 'week'].includes(scope)) {
+        return res.status(400).json({ error: 'Invalid scope: must be one of hour, day, week.' });
     }
 
-    // Calculate start time based on scope
-    const now = new Date();
-    let startTime;
-    switch (scope) {
-        case 'hour':
-            startTime = new Date(now.getTime() - 60 * 60 * 1000);
-            break;
-        case 'day':
-            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            break;
-        case 'week':
-            startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            break;
-    }
+    // open stream
+    res.writeHead(200, {
+        "Connection": "keep-alive",
+        "Cache-Control": "no-cache",
+        "Content-Type": "text/event-stream"
+    });
 
-    // Query SensorReadingModel
-    try {
-        const readings = await SensorReadingModel.find({
-            sensorId,
-            time: { $gte: startTime }
-        }).exec();
+    // initial stream so client doesn't have to wait for 60 seconds
+    const readings = await readTimeSeriesReadings(sensorId, scope);
+    res.write(`data: ${JSON.stringify(readings)}\n\n`)
 
-        // Return readings
-        res.json(readings);
-    } catch (err) {
-        res.status(500).json({ error: 'Error retrieving sensor readings.' });
-    }
+    // stream data every 60 seconds
+    const MS_IN_S: number = 1000;
+    const stream: NodeJS.Timeout = setInterval(async () => {
+        const readings = await readTimeSeriesReadings(sensorId, scope);
+        res.write(`data: ${JSON.stringify(readings)}\n\n`)
+    }, 60 * MS_IN_S)
+
+    // close stream when connections ends and stop the interval
+    res.on('close', () => {
+        clearInterval(stream);
+        res.end();
+    })
 };
