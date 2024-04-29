@@ -1,5 +1,4 @@
 import { Schema, model, Document } from 'mongoose';
-import * as mongoose from "mongoose";
 
 /**
  * SensorReading represents a single record of a sensors reading for a given minute
@@ -28,4 +27,4 @@ const SensorReadingSchema = new Schema<ISensorReading>({
     data: Number
 })
 
-export const SensorReadingModel = model<ISensorReading>('SensorReading', SensorReadingSchema, "SensorReadings");
+export const SensorReadingModel = model<ISensorReading>('SensorReading', SensorReadingSchema, 'SensorReadings');
