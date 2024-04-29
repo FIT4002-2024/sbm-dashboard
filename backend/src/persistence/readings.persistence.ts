@@ -1,4 +1,5 @@
 import {SensorReadingModel} from "../models/readings.model";
+import {start} from "repl";
 
 /**
  * Connection to database that returns all sensor readings for the current minute since epoch time
@@ -62,33 +63,29 @@ export const readTimeSeriesReadings: IReadTimeSeriesReadings = async (sensorId: 
     const MS_PER_S: number = 1000;
     const MS_IN_MIN: number = MS_PER_S * 60
 
-    const excessTime: number = now.getMilliseconds() + now.getSeconds() * MS_PER_S;
-    const currMinute: number = now.valueOf() - excessTime.valueOf();
-
-    let startTime;
+    // assume hourly scope unless otherwise specified
+    let scopeDurationMS: number = MS_IN_MIN * 60;
     switch (scope) {
-        case 'hour':
-            startTime = new Date(now.getTime() - 60 * 60 * 1000);
-            break;
         case 'day':
-            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            scopeDurationMS = scopeDurationMS * 24;
             break;
         case 'week':
-            startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            scopeDurationMS = scopeDurationMS * 7;
             break;
     }
 
-    const scopeDurationMS: number = 0; // now - scope
+    // find start and end times for time series
+    const excessTimeFromCurrMinute: number = now.getMilliseconds() + now.getSeconds() * MS_PER_S;
+    const currMinute: number = now.valueOf() - excessTimeFromCurrMinute.valueOf();
+    const startTime: number = now.valueOf() - scopeDurationMS;
 
     // filter out all records not within the specified scope
     const filter: Object = {
-
+        sensorId: sensorId,
+        time: {
+            $gte: new Date(startTime), $lt: new Date(currMinute + MS_IN_MIN)
+        }
     };
-
-    // const readings = await SensorReadingModel.find({
-    //     sensorId,
-    //     time: { $gte: startTime }
-    // }).exec();
 
     return await SensorReadingModel.find(filter).exec()
 }
