@@ -44,7 +44,7 @@ sensor_locations = [
 sensor_types = {'temperature': 'C', 'humidity': 'g/m3'}
 
 sensors = [{
-    "_id": {"$oid": uuid4().hex},
+    "_id": uuid4().hex,
     "name": sensor_names[i],
     "type": list(sensor_types.keys())[i%2],
     "location": sensor_locations[randint(0, 5)],
@@ -81,7 +81,7 @@ for sensor in sensors:
 
     while current_date <= end_date:    
         sensor_readings.append({
-            "_id": {"$oid": uuid4().hex},
+            "_id": uuid4().hex,
             "time": current_date,
             "type": sensor['type'],
             "sensorId": sensor['_id'],
@@ -101,15 +101,15 @@ client = MongoClient(uri)
 
 db = client[args.name]
 
-# if collections exist, drop them all
-
+# if collections exist, drop them all and re-create them with re-populated data
 if db.SensorReadings is not None:
     db.SensorReadings.drop()
 
 if db.Sensors is not None:
     db.Sensors.drop()
 
-# create the collections
+db.create_collection('Sensors')
+db.create_collection('SensorReadings')
 
-# populate the collections with data
-
+db['Sensors'].insert_many(sensors)
+db['SensorReadings'].insert_many(sensor_readings)
