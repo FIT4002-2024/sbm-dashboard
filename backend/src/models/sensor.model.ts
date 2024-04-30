@@ -22,7 +22,7 @@ const SensorSchema = new Schema<ISensor>({
 
 SensorSchema.index({ name: 1, location: 1 }, { unique: true })
 
-const SensorModel = model<ISensor>('TimeSeries', SensorSchema);
+const SensorModel = model<ISensor>('Sensor', SensorSchema, 'Sensors');
 
 export default SensorModel;
 
