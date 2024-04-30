@@ -16,7 +16,7 @@ function OperationsPage() {
           <SensorPopup
             name="Temperature Sensor"
             value={10}
-            date="2021-10-01"
+            date="10/31/2024"
             time="12:00"
             suggestionAction="Check the sensor"
           ></SensorPopup>
