@@ -9,7 +9,7 @@ function OperationsPage() {
       Content for Operations
       <button onClick={() => setOpenPopup(true)}>Open Popup</button>
       <Popup
-        title="Popup Title"
+        title="Sensor Value Exceeded"
         openPopup={openPopup}
         setOpenPopup={(value: boolean) => setOpenPopup(value)}
         popupContent={
