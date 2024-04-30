@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime, timedelta
@@ -16,7 +18,7 @@ parser = argparse.ArgumentParser(
                 "Each time you run, it will delete all existing data in your database before repopulating."
 )
 
-parser.add_argument('-p', '--port', default='27107', type=str, help="The port number of the database.")
+parser.add_argument('-p', '--port', default='27017', type=str, help="The port number of the database.")
 parser.add_argument('-H', '--host', default='127.0.0.1', type=str, help="The URL for the DB. If localhost, put 127.0.0.1.")
 parser.add_argument('-n', '--name', default='sbm_dashboard', type=str, help="The name of the dashboard")
 parser.add_argument('-s', '--start_scope', default='hour', choices=['hour', 'day', 'week'], type=str, help="Should the script create data for the past hour, day or week?")
@@ -36,8 +38,7 @@ sensor_names = [
 
 sensor_locations = [
     'loading dock', 'freezer room', 'reception', 
-    'loading dock', 'west bay',     'freezer room',
-    'east bay',     'basement',     'loading dock'    
+    'west bay',     'east bay',     'basement'  
 ]
 
 sensor_types = {'temperature': 'C', 'humidity': 'g/m3'}
@@ -46,7 +47,7 @@ sensors = [{
     "_id": {"$oid": uuid4().hex},
     "name": sensor_names[i],
     "type": list(sensor_types.keys())[i%2],
-    "location": sensor_locations[i],
+    "location": sensor_locations[randint(0, 5)],
     "__v": 0
 } for i in range(9)]
 
@@ -59,16 +60,16 @@ sensor_readings = []
 # determine how far back and forward we want to generate mock readings for
 start_time, end_time = 1, 1
 
-if args.start_time == 'day':
+if args.start_scope == 'day':
     start_time = start_time * 24
-elif args.start_time == 'week':
+elif args.start_scope == 'week':
     start_time = start_time * 24 * 7
 
-if args.end_time == 'day':
+if args.end_scope == 'day':
     end_time = end_time * 24
-elif args.end_time == 'week':
+elif args.end_scope == 'week':
     end_time = end_time * 24 * 7
-elif args.end_time == 'month':
+elif args.end_scope == 'month':
     end_time = end_time * 24 * 7 * 30
 
 start_date = datetime.now() - timedelta(hours=start_time)
@@ -95,10 +96,20 @@ for sensor in sensors:
 ###         database population         ###
 ###########################################
 
-uri = 'mongodb://' + args.host + ':' + args.port + '/' + args.name
+uri = 'mongodb://' + args.host + ':' + args.port
+client = MongoClient(uri)
 
-# if database and collections exists, clean up existing collections
+db = client[args.name]
 
+# if collections exist, drop them all
 
-# else, create db and collections and populate
+if db.SensorReadings is not None:
+    db.SensorReadings.drop()
+
+if db.Sensors is not None:
+    db.Sensors.drop()
+
+# create the collections
+
+# populate the collections with data
 
