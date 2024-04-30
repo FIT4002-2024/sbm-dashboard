@@ -27,8 +27,8 @@ RUN apt update && \
 
 # data population
 RUN mkdir -p /data/db
-RUN mongod &
 EXPOSE 27017
-
 COPY mock_data_gen.py .
-CMD ["python", "./mock_data_gen.py", "-g", "10", "-s", "week", "-e", "month"]
+COPY entry.sh .
+
+CMD ./entry.sh
