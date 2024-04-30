@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-p', '--port', default='27017', type=str, help="The port number of the database.")
 parser.add_argument('-H', '--host', default='127.0.0.1', type=str, help="The URL for the DB. If localhost, put 127.0.0.1.")
 parser.add_argument('-n', '--name', default='sbm_dashboard', type=str, help="The name of the dashboard")
+parser.add_argument('-g', '--grain', default=60, type=int, choices=[10, 30, 60], help="The granularity of readings entries e.g. do we have readings per minute or per 10sec?")
 parser.add_argument('-s', '--start_scope', default='hour', choices=['hour', 'day', 'week'], type=str, help="Should the script create data for the past hour, day or week?")
 parser.add_argument('-e', '--end_scope', default='hour', choices=['hour', 'day', 'week', 'month'], type=str, help="Should the script create data for the next hour, day, week or months?")
 
@@ -75,6 +76,7 @@ elif args.end_scope == 'month':
 start_date = datetime.now() - timedelta(hours=start_time)
 end_date = datetime.now() + timedelta(hours=end_time)
 
+
 # generate mock readings for every minute within the scope per sensor
 for sensor in sensors:
     current_date = start_date
@@ -90,7 +92,7 @@ for sensor in sensors:
             "__v": 0
         })
 
-        current_date += timedelta(minutes=1)
+        current_date += timedelta(seconds=args.grain)
 
 ###########################################
 ###         database population         ###
