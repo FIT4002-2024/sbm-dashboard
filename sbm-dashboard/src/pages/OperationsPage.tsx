@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Popup from "../components/Popup";
+import SensorPopup from "../components/SensorPopup";
 function OperationsPage() {
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -11,7 +12,15 @@ function OperationsPage() {
         title="Popup Title"
         openPopup={openPopup}
         setOpenPopup={(value: boolean) => setOpenPopup(value)}
-        popupContent={<div>Popup Content</div>}
+        popupContent={
+          <SensorPopup
+            name="Temperature Sensor"
+            value={10}
+            date="2021-10-01"
+            time="12:00"
+            suggestionAction="Check the sensor"
+          ></SensorPopup>
+        }
       ></Popup>
     </div>
   );

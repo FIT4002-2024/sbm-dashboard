@@ -14,12 +14,14 @@ const Popup: React.FC<PopupProps> = (props: PopupProps) => {
   const { title, popupContent, openPopup, setOpenPopup } = props;
   return (
     <div>
-      <Dialog open={openPopup} style={{ textAlign: "center" }}>
+      <Dialog open={openPopup}>
         <DialogTitle>{title}</DialogTitle>
         <DialogContent dividers style={{ width: "300px" }}>
           {popupContent}
           <br />
-          <div style={{ marginTop: "5px" }}>
+          <div
+            style={{ marginTop: "5px", marginRight: "2px", textAlign: "right" }}
+          >
             <button onClick={() => setOpenPopup(false)}>Cancel</button>
           </div>
         </DialogContent>
