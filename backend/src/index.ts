@@ -7,11 +7,17 @@ import sensorReadingsRouter from "./routes/readings.routes";
 
 dotenv.config();
 const app = express();
-const port = process.env.API_PORT || 80;
+const port = process.env.API_PORT || 4000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+// Server-side CORS setup for SSE
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET"],
+    credentials: true
+}));
+
 
 app.use('/api/sensors/', sensorReadingsRouter);
 
