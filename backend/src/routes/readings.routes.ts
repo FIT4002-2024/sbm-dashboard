@@ -1,5 +1,5 @@
 import express from "express";
-import { streamImmediate } from '../controllers/readings.controllers';
+import {streamImmediate, streamTimeSeries} from '../controllers/readings.controllers';
 import cors from 'cors';  // Import CORS module
 
 const router = express.Router();
@@ -12,6 +12,7 @@ const corsOptions = {
 };
 
 router.get('/stream-immediate', cors(corsOptions), streamImmediate);
+router.get('/stream-timeseries/:sensorId/:scope', streamTimeSeries);
 
 export default router;
 
