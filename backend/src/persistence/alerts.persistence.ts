@@ -50,52 +50,30 @@ export const readSensorAlertConfigurations: IReadSensorAlertConfigurations = asy
 }
 
 /**
- * Associates the definition/configuration of an alert & the conditions that trigger it 
- * to a sensor. 
+ * Used for read, update or delete of a definition/configuration of an alert & the conditions that trigger 
+ * it for a sensor. 
  *
  * TODO add config to params
  * @param: sensorId: UUID of the sensor in question
  * @return: the created Alert document
  */
-interface IAddSensorAlertConfiguration {
+interface IRUDSensorAlertConfiguration {
     (sensorId: string, alertConfiguration: IAlertDefinition): void
 }
 
-export const addSensorAlertConfiguration: IAddSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
+export const addSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
     // find the sensor
     // update it by inserting the new config into its alertDefinition key
     // ensure no duplicates
-
 }
 
-/**
- * Updates an alert definition i.e. the conditions that trigger it for a sensor.
- *
- * @param: sensorId: UUID of the sensor in question
- * @return: the created Alert document
- */
-interface IChangeSensorAlertConfiguration {
-    (sensorId: string, updatedConfiguration: IAlertDefinition): void
-}
-
-export const changeSensorAlertConfiguration: IChangeSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
+export const changeSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
     // find the sensor
     // update it by finding the old versiom
     // ensure no duplicates
 }
 
-/**
- * Deletes an alert definition i.e. the conditions that trigger it for a sensor.
- *
- * @param: sensorId: UUID of the sensor in question
- * @return: the created Alert document
- */
-interface IDeleteSensorAlertConfiguration {
-    (sensorId: string, alertConfiguration: any): void
-}
-
-export const deleteSensorAlertConfiguration: IDeleteSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
-
+export const deleteSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
     // find the configuration
     // remove it from the array
 }

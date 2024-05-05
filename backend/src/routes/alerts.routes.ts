@@ -3,7 +3,9 @@ import {
     watchAllAlerts, 
     watchSensorAlerts, 
     addSensorAlertConfiguration,
-    changeSensorAlertConfiguration
+    changeSensorAlertConfiguration,
+    getSensorAlertConfigurations,
+    deleteSensorAlertConfiguration
 } from '../controllers/alerts.controllers';
 
 const router = express.Router();
@@ -12,8 +14,12 @@ router.get('/', watchAllAlerts);
 
 router.get('/:sensorId', watchSensorAlerts);
 
-router.post('/:sensorId', addSensorAlertConfiguration);
+router.get('/config/:sensorId', getSensorAlertConfigurations);
 
-router.put('/:sensorId', changeSensorAlertConfiguration)
+router.post('config/:sensorId', addSensorAlertConfiguration);
+
+router.put('/config/:sensorId', changeSensorAlertConfiguration)
+
+router.delete('/config/:sensorId', deleteSensorAlertConfiguration)
 
 export default router;

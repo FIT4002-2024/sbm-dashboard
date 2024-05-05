@@ -3,7 +3,7 @@ import {
     readAllSensorAlerts,
     readSingleSensorsAlerts,
     readSensorAlertConfigurations,
-    addSensorAlertConfiguration as addConfigurationPersistence,
+    addSensorAlertConfiguration as addConfiguration,
     changeSensorAlertConfiguration as changeConfiguration,
     deleteSensorAlertConfiguration as deleteConfiguration
 } from '../persistence/alerts.persistence'
@@ -82,8 +82,8 @@ export const watchSensorAlerts = async (req: Request, res: Response) => {
  * @param res - The HTTP response object used to send SSE.
  */
 export const getSensorAlertConfigurations = async (req: Request, res: Response) => {
-    
-
+    const configurations = readSensorAlertConfigurations(req.params.sensorId);
+    res.status(200).json(configurations);
 };
 
 /**
@@ -94,8 +94,8 @@ export const getSensorAlertConfigurations = async (req: Request, res: Response) 
  * @param res - The HTTP response object used to send SSE.
  */
 export const addSensorAlertConfiguration = async (req: Request, res: Response) => {
-
-
+    await addConfiguration(req.params.sensorId, req.body.configuration);
+    res.status(200).json();
 };
 
 /**
@@ -106,8 +106,8 @@ export const addSensorAlertConfiguration = async (req: Request, res: Response) =
  * @param res - The HTTP response object used to send SSE.
  */
 export const changeSensorAlertConfiguration = async (req: Request, res: Response) => {
-
-
+    await changeConfiguration(req.params.sensorId, req.body.configuration);
+    res.status(200).json();
 };
 
 /**
@@ -118,6 +118,6 @@ export const changeSensorAlertConfiguration = async (req: Request, res: Response
  * @param res - The HTTP response object used to send SSE.
  */
 export const deleteSensorAlertConfiguration = async (req: Request, res: Response) => {
-
-
+    await deleteConfiguration(req.params.sensorId, req.body.configuration);
+    res.status(200).json();
 };
