@@ -1,5 +1,4 @@
 import { SensorReadingModel } from "../models/readings.model";
-import {start} from "repl";
 
 /**
  * Connection to database that returns all sensor readings for the current minute

@@ -1,6 +1,6 @@
 import express from "express";
 import {streamImmediate, streamTimeSeries} from '../controllers/readings.controllers';
-import cors from 'cors';  // Import CORS module
+import cors from 'cors';
 
 const router = express.Router();
 
