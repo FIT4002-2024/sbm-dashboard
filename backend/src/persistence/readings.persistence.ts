@@ -1,4 +1,4 @@
-import { SensorReadingModel } from "../models/readings.model";
+import { ISensorReading, SensorReadingModel } from "../models/readings.model";
 
 /**
  * Connection to database that returns all sensor readings for the current minute
@@ -6,7 +6,7 @@ import { SensorReadingModel } from "../models/readings.model";
  * @return: array of SensorReading documents
  */
 interface IReadImmediateReadings {
-    (): Promise<any[]>
+    (): Promise<ISensorReading[]>
 }
 
 export const readImmediateReadings: IReadImmediateReadings = async () => {
@@ -38,7 +38,7 @@ export const readImmediateReadings: IReadImmediateReadings = async () => {
  * @return: array of SensorReading documents
  */
 interface IReadTimeSeriesReadings {
-    (sensorId: string, scope: string): Promise<any[]>
+    (sensorId: string, scope: string): Promise<ISensorReading[]>
 }
 
 export const readTimeSeriesReadings: IReadTimeSeriesReadings = async (sensorId: string, scope: string) => {

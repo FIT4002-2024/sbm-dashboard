@@ -1,5 +1,5 @@
-import {SensorModel} from "../models/sensor.model";
-import { IAlert, IAlertDefinition, AlertModel } from "../models/alert.model";
+import {SensorModel, IAlertDefinition} from "../models/sensor.model";
+import { IAlert, AlertModel } from "../models/alert.model";
 
 /**
  * 
@@ -7,7 +7,7 @@ import { IAlert, IAlertDefinition, AlertModel } from "../models/alert.model";
  * @return: array of Alert documents
  */
 interface IReadAllSensorAlerts {
-    (): Promise<any[]>
+    (): Promise<IAlert[]>
 }
 
 export const readAllSensorAlerts: IReadAllSensorAlerts = async () => {
@@ -22,7 +22,7 @@ export const readAllSensorAlerts: IReadAllSensorAlerts = async () => {
  * @return: array of Alert documents
  */
 interface IReadSingleSensorsAlerts {
-    (sensorId: string): Promise<any[]>
+    (sensorId: string): Promise<IAlert[]>
 }
 
 export const readSingleSensorsAlerts: IReadSingleSensorsAlerts = async (sensorId: string) => {
@@ -54,7 +54,7 @@ export const readSensorAlertConfigurations: IReadSensorAlertConfigurations = asy
  * @return: the created Alert document
  */
 interface IAddSensorAlertConfiguration {
-    (sensorId: string, alertConfiguration: any): void
+    (sensorId: string, alertConfiguration: IAlertDefinition): void
 }
 
 export const addSensorAlertConfiguration: IAddSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
@@ -69,7 +69,7 @@ export const addSensorAlertConfiguration: IAddSensorAlertConfiguration = async (
  * @return: the created Alert document
  */
 interface IChangeSensorAlertConfiguration {
-    (sensorId: string, updatedConfiguration: any): void
+    (sensorId: string, updatedConfiguration: IAlertDefinition): void
 }
 
 export const changeSensorAlertConfiguration: IChangeSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {

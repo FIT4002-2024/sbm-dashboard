@@ -104,6 +104,7 @@ client = MongoClient(uri)
 db = client[args.name]
 
 # if collections exist, drop them all and re-create them with re-populated data
+# TODO don't drop collection (might drop watch), just delete entries
 if db.SensorReadings is not None:
     db.SensorReadings.drop()
 
