@@ -1,8 +1,9 @@
 import {SensorModel, IAlertDefinition} from "../models/sensor.model";
 import { IAlert, AlertModel } from "../models/alert.model";
+import { readImmediateGeneral } from "./shared.persistence";
 
 /**
- * 
+ * Retrieve all current alerts for this minute.
  *
  * @return: array of Alert documents
  */
@@ -11,12 +12,11 @@ interface IReadAllSensorAlerts {
 }
 
 export const readAllSensorAlerts: IReadAllSensorAlerts = async () => {
-
-    return []
+    return await readImmediateGeneral(AlertModel)
 }
 
 /**
- * 
+ * Retrieve all current alerts for this minute for a sensor 
  *
  * @param: sensorId: UUID of the sensor in question
  * @return: array of Alert documents
@@ -26,8 +26,7 @@ interface IReadSingleSensorsAlerts {
 }
 
 export const readSingleSensorsAlerts: IReadSingleSensorsAlerts = async (sensorId: string) => {
-
-    return []
+    return await readImmediateGeneral(AlertModel, sensorId)
 }
 
 /**

@@ -1,22 +1,13 @@
 import { Schema, model, Document } from 'mongoose';
 
-enum ConditionTypes {
-    gt = '>',
-    lt = '<',
-    gte = '>=',
-    lte = '<=',
-    eq = '==',
-    neq = '!=',
-}
-
 /**
  * A condition that triggers an alert and associated metadata and info
  *
- * @loLimit: the lower bound of the range that will send an alert
- * @hiLimit: the upper bound of the range that will send an alert
- *    @type: the type of alert e.g. info, warning, critical
- *     @msg: the message to be displayed when the constraint is broken
- *     @fix: a suggested action to address the alert e.g. turn on the AC
+ *  @loLimit: the lower bound of the range that will send an alert
+ *  @hiLimit: the upper bound of the range that will send an alert
+ *     @type: the type of alert e.g. info, warning, critical
+ *      @msg: the message to be displayed when the constraint is broken
+ *      @fix: a suggested action to address the alert e.g. turn on the AC
  */
 export interface IAlertDefinition extends Document {
     loLimit: number;
