@@ -1,6 +1,7 @@
 import {SensorModel, IAlertDefinition} from "../models/sensor.model";
 import { IAlert, AlertModel } from "../models/alert.model";
 import { readImmediateGeneral } from "./shared.persistence";
+import { FilterQuery } from "mongoose";
 
 /**
  * Retrieve all current alerts for this minute.
@@ -40,8 +41,12 @@ interface IReadSensorAlertConfigurations {
 }
 
 export const readSensorAlertConfigurations: IReadSensorAlertConfigurations = async (sensorId: string) => {
+    const filter: FilterQuery<any> = {
+        _id: sensorId
+    };
 
-
+    const [alertDefinitions] = await SensorModel.find(filter).exec()
+    return alertDefinitions
 }
 
 /**
@@ -57,7 +62,9 @@ interface IAddSensorAlertConfiguration {
 }
 
 export const addSensorAlertConfiguration: IAddSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
-
+    // find the sensor
+    // update it by inserting the new config into its alertDefinition key
+    // ensure no duplicates
 
 }
 
@@ -72,8 +79,9 @@ interface IChangeSensorAlertConfiguration {
 }
 
 export const changeSensorAlertConfiguration: IChangeSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
-
-
+    // find the sensor
+    // update it by finding the old versiom
+    // ensure no duplicates
 }
 
 /**
@@ -83,10 +91,11 @@ export const changeSensorAlertConfiguration: IChangeSensorAlertConfiguration = a
  * @return: the created Alert document
  */
 interface IDeleteSensorAlertConfiguration {
-    (sensorId: string): void
+    (sensorId: string, alertConfiguration: any): void
 }
 
-export const deleteSensorAlertConfiguration: IDeleteSensorAlertConfiguration = async (sensorId: string) => {
+export const deleteSensorAlertConfiguration: IDeleteSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
 
-
+    // find the configuration
+    // remove it from the array
 }

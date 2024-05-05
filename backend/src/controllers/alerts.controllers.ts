@@ -16,8 +16,29 @@ import {
  * @param res - The HTTP response object used to send SSE.
  */
 export const watchAllAlerts = async (req: Request, res: Response) => {
+    // open stream
+    res.writeHead(200, {
+        "Connection": "keep-alive",
+        "Cache-Control": "no-cache",
+        "Content-Type": "text/event-stream"
+    });
 
+    // initial stream so client doesn't have to wait for 60 seconds
+    const readings = await readAllSensorAlerts();
+    res.write(`data: ${JSON.stringify(readings)}\n\n`)
 
+    // stream data every 60 seconds
+    const MS_IN_S: number = 1000;
+    const stream: NodeJS.Timeout = setInterval(async () => {
+        const readings = await readAllSensorAlerts();
+        res.write(`data: ${JSON.stringify(readings)}\n\n`)
+    }, 60 * MS_IN_S)
+
+    // close stream when connections ends and stop the interval
+    res.on('close', () => {
+        clearInterval(stream);
+        res.end();
+    })
 };
 
 /**
@@ -28,7 +49,29 @@ export const watchAllAlerts = async (req: Request, res: Response) => {
  * @param res - The HTTP response object used to send SSE.
  */
 export const watchSensorAlerts = async (req: Request, res: Response) => {
+    // open stream
+    res.writeHead(200, {
+        "Connection": "keep-alive",
+        "Cache-Control": "no-cache",
+        "Content-Type": "text/event-stream"
+    });
 
+    // initial stream so client doesn't have to wait for 60 seconds
+    const readings = await readSingleSensorsAlerts(req.params.sensorId);
+    res.write(`data: ${JSON.stringify(readings)}\n\n`)
+
+    // stream data every 60 seconds
+    const MS_IN_S: number = 1000;
+    const stream: NodeJS.Timeout = setInterval(async () => {
+        const readings = await readSingleSensorsAlerts(req.params.sensorId);
+        res.write(`data: ${JSON.stringify(readings)}\n\n`)
+    }, 60 * MS_IN_S)
+
+    // close stream when connections ends and stop the interval
+    res.on('close', () => {
+        clearInterval(stream);
+        res.end();
+    })
 
 };
 
@@ -39,7 +82,7 @@ export const watchSensorAlerts = async (req: Request, res: Response) => {
  * @param res - The HTTP response object used to send SSE.
  */
 export const getSensorAlertConfigurations = async (req: Request, res: Response) => {
-
+    
 
 };
 
