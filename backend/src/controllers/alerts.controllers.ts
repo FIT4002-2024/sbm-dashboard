@@ -1,4 +1,12 @@
 import { Request, Response } from "express";
+import {
+    readAllSensorAlerts,
+    readSingleSensorsAlerts,
+    readSensorAlertConfigurations,
+    addSensorAlertConfiguration as addConfigurationPersistence,
+    changeSensorAlertConfiguration as changeConfiguration,
+    deleteSensorAlertConfiguration as deleteConfiguration
+} from '../persistence/alerts.persistence'
 
 /**
  * Implements a server-sent event (SSE endpoint) where it constantly streams any alerts from 

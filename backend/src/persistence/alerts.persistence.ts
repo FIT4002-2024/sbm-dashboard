@@ -1,4 +1,5 @@
 import {SensorModel} from "../models/sensor.model";
+import { IAlert, IAlertDefinition, AlertModel } from "../models/alert.model";
 
 /**
  * 
@@ -20,43 +21,73 @@ export const readAllSensorAlerts: IReadAllSensorAlerts = async () => {
  * @param: sensorId: UUID of the sensor in question
  * @return: array of Alert documents
  */
-interface IReadSingleSensorAlerts {
+interface IReadSingleSensorsAlerts {
     (sensorId: string): Promise<any[]>
 }
 
-export const readSingleSensorAlerts: IReadSingleSensorAlerts = async (sensorId: string) => {
+export const readSingleSensorsAlerts: IReadSingleSensorsAlerts = async (sensorId: string) => {
 
     return []
 }
 
 /**
- * Associates the definition of an alert & the conditions that trigger it 
- * to a sensor.
+ * Gets all configurations made for a sensor that would cause an alert to be created
  *
  * @param: sensorId: UUID of the sensor in question
  * @return: the created Alert document
  */
-interface IAddSensorAlert {
+interface IReadSensorAlertConfigurations {
     (sensorId: string): void
 }
 
-export const addSensorAlert: IAddSensorAlert = async (sensorId: string) => {
+export const readSensorAlertConfigurations: IReadSensorAlertConfigurations = async (sensorId: string) => {
 
 
 }
 
 /**
- * Updates an alert &/or the conditions that trigger it for a sensor.
+ * Associates the definition/configuration of an alert & the conditions that trigger it 
+ * to a sensor. 
+ *
+ * TODO add config to params
+ * @param: sensorId: UUID of the sensor in question
+ * @return: the created Alert document
+ */
+interface IAddSensorAlertConfiguration {
+    (sensorId: string, alertConfiguration: any): void
+}
+
+export const addSensorAlertConfiguration: IAddSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
+
+
+}
+
+/**
+ * Updates an alert definition i.e. the conditions that trigger it for a sensor.
  *
  * @param: sensorId: UUID of the sensor in question
  * @return: the created Alert document
  */
-interface IChangeSensorAlert {
+interface IChangeSensorAlertConfiguration {
+    (sensorId: string, updatedConfiguration: any): void
+}
+
+export const changeSensorAlertConfiguration: IChangeSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
+
+
+}
+
+/**
+ * Deletes an alert definition i.e. the conditions that trigger it for a sensor.
+ *
+ * @param: sensorId: UUID of the sensor in question
+ * @return: the created Alert document
+ */
+interface IDeleteSensorAlertConfiguration {
     (sensorId: string): void
 }
 
-export const changeSensorAlert: IChangeSensorAlert = async (sensorId: string) => {
+export const deleteSensorAlertConfiguration: IDeleteSensorAlertConfiguration = async (sensorId: string) => {
 
 
 }
-
