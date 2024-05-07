@@ -1,7 +1,8 @@
 import {SensorModel, IAlertDefinition} from "../models/sensor.model";
 import { IAlert, AlertModel } from "../models/alert.model";
 import { readImmediateGeneral } from "./shared.persistence";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, UpdateQuery } from "mongoose";
+import { config } from "dotenv";
 
 /**
  * Retrieve all current alerts for this minute.
@@ -45,16 +46,16 @@ export const readSensorAlertConfigurations: IReadSensorAlertConfigurations = asy
         _id: sensorId
     };
 
-    const [alertDefinitions] = await SensorModel.find(filter).exec()
-    return alertDefinitions
+    const [sensor] = await SensorModel.find(filter).exec()
+    return sensor.alertDefinitions
 }
 
 /**
  * Used for read, update or delete of a definition/configuration of an alert & the conditions that trigger 
  * it for a sensor. 
  *
- * TODO add config to params
  * @param: sensorId: UUID of the sensor in question
+ * @param: config: the alert configuration being added
  * @return: the created Alert document
  */
 interface IRUDSensorAlertConfiguration {
@@ -62,9 +63,21 @@ interface IRUDSensorAlertConfiguration {
 }
 
 export const addSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
-    // find the sensor
-    // update it by inserting the new config into its alertDefinition key
-    // ensure no duplicates
+    const filter: FilterQuery<any> = {
+        _id: sensorId
+    };
+
+    // addToSet ensures no duplicates of config exist
+    const updateQuery: UpdateQuery<any> = {
+        $addToSet: {alertDefinitions: alertConfiguration}
+    }
+    
+    SensorModel.updateOne(
+        filter,
+        updateQuery
+    )
+
+    // query document then save???
 }
 
 export const changeSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
@@ -74,6 +87,17 @@ export const changeSensorAlertConfiguration: IRUDSensorAlertConfiguration = asyn
 }
 
 export const deleteSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (sensorId: string, alertConfiguration: any) => {
-    // find the configuration
-    // remove it from the array
+    const filter: FilterQuery<any> = {
+        _id: sensorId
+    };
+
+    // addToSet ensures no duplicates of config exist
+    const updateQuery: UpdateQuery<any> = {
+        $pull: {alertDefinitions: alertConfiguration}
+    }
+    
+    SensorModel.updateOne(
+        filter,
+        updateQuery
+    )
 }

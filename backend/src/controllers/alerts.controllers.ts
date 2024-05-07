@@ -72,7 +72,6 @@ export const watchSensorAlerts = async (req: Request, res: Response) => {
         clearInterval(stream);
         res.end();
     })
-
 };
 
 /**
@@ -95,7 +94,7 @@ export const getSensorAlertConfigurations = async (req: Request, res: Response) 
  */
 export const addSensorAlertConfiguration = async (req: Request, res: Response) => {
     await addConfiguration(req.params.sensorId, req.body.configuration);
-    res.status(200).json();
+    res.status(200).send();
 };
 
 /**
@@ -107,7 +106,7 @@ export const addSensorAlertConfiguration = async (req: Request, res: Response) =
  */
 export const changeSensorAlertConfiguration = async (req: Request, res: Response) => {
     await changeConfiguration(req.params.sensorId, req.body.configuration);
-    res.status(200).json();
+    res.status(200).send();
 };
 
 /**
@@ -119,5 +118,5 @@ export const changeSensorAlertConfiguration = async (req: Request, res: Response
  */
 export const deleteSensorAlertConfiguration = async (req: Request, res: Response) => {
     await deleteConfiguration(req.params.sensorId, req.body.configuration);
-    res.status(200).json();
+    res.status(200).send();
 };
