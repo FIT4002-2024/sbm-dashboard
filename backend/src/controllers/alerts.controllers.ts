@@ -81,7 +81,8 @@ export const watchSensorAlerts = async (req: Request, res: Response) => {
  * @param res - The HTTP response object used to send SSE.
  */
 export const getSensorAlertConfigurations = async (req: Request, res: Response) => {
-    const configurations = readSensorAlertConfigurations(req.params.sensorId);
+    const configurations = await readSensorAlertConfigurations(req.params.sensorId);
+    console.log(configurations)
     res.status(200).json(configurations);
 };
 
