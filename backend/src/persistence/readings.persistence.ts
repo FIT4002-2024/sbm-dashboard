@@ -1,32 +1,18 @@
-import { SensorReadingModel } from "../models/readings.model";
-import {start} from "repl";
+import { ISensorReading, SensorReadingModel } from "../models/readings.model";
+import { readImmediateGeneral } from "./shared.persistence";
 
 /**
- * Interface for the function to fetch immediate sensor readings
- * 
- * @param startTime - The start time from which to fetch sensor readings.
- * @param endTime - The end time until which to fetch sensor readings.
- * @returns An array of SensorReading documents.
+ * Connection to database that returns all sensor readings for the current minute
+ *
+ * @return: array of SensorReading documents
  */
 interface IReadImmediateReadings {
-    (startTime: Date, endTime: Date): Promise<any[]>;
+    (): Promise<ISensorReading[]>
 }
 
-/**
- * Fetches immediate sensor readings from the database within the specified time range.
- * 
- * @param startTime - The start time from which to fetch sensor readings.
- * @param endTime - The end time until which to fetch sensor readings.
- * @returns An array of SensorReading documents.
- */
-export const readImmediateReadings: IReadImmediateReadings = async (startTime, endTime) => {
-    // Filter to fetch sensor readings within the specified time range
-    const filter = {
-        time: { $gte: startTime, $lt: endTime }
-    };
-
-    return await SensorReadingModel.find(filter).exec();
-};
+export const readImmediateReadings: IReadImmediateReadings = async () => {
+    return await readImmediateGeneral(SensorReadingModel);
+}
 
 /**
  * Connection to database that returns all sensor readings from 'scope' period of time
@@ -38,18 +24,9 @@ export const readImmediateReadings: IReadImmediateReadings = async (startTime, e
  * @return: array of SensorReading documents
  */
 interface IReadTimeSeriesReadings {
-    (sensorId: string, scope: string): Promise<any[]>
+    (sensorId: string, scope: string): Promise<ISensorReading[]>
 }
 
-/**
- * Connection to database that returns all sensor readings from 'scope' period of time
- * until now
- *
- * @sensorId: the UUID for the sensor whose data is being requested
- * @param: a string indicating the scope either hour, day or week
- *
- * @return: array of SensorReading documents
- */
 export const readTimeSeriesReadings: IReadTimeSeriesReadings = async (sensorId: string, scope: string) => {
 
     // calculate the times for the scope:

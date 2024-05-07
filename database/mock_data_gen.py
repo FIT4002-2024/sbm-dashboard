@@ -5,7 +5,9 @@ from pymongo.server_api import ServerApi
 from datetime import datetime, timedelta
 from random import randint
 from uuid import uuid4
+from bson import ObjectId
 import argparse
+import random
 
 ###########################################
 ###    command line input validation    ###
@@ -45,18 +47,38 @@ sensor_locations = [
 sensor_types = {'temperature': 'C', 'humidity': 'g/m3'}
 
 sensors = [{
-    "_id": uuid4().hex,
+    "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
     "name": sensor_names[i],
     "type": list(sensor_types.keys())[i%2],
     "location": sensor_locations[randint(0, 5)],
+    "alertDefinitions": [],
     "__v": 0
 } for i in range(9)]
 
 ###########################################
-###       readings data creation        ###
+###  readings and alert data creation   ###
 ###########################################
 
 sensor_readings = []
+alerts = []
+
+alert_msgs = [
+    {
+        "type": "info",
+        "msg": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+        "fix": "Sed do eiusmod tempor incididunt"
+    },
+    {
+        "type": "warning",
+        "msg": "Ut labore et dolore magna aliqua",
+        "fix": "Ut enim ad minim veniam"
+    },
+    {
+        "type": "critical",
+        "msg": "Quis nostrud exercitation ullamco laboris nisi ut aliquip",
+        "fix": "Ex ea commodo consequat"
+    }
+]
 
 # determine how far back and forward we want to generate mock readings for
 start_time, end_time = 1, 1
@@ -81,16 +103,29 @@ end_date = datetime.now() + timedelta(hours=end_time)
 for sensor in sensors:
     current_date = start_date
 
-    while current_date <= end_date:    
+    while current_date <= end_date:
+        rng = randint(1, 100)
         sensor_readings.append({
-            "_id": uuid4().hex,
+            # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
             "time": current_date,
             "type": sensor['type'],
             "sensorId": sensor['_id'],
             "units": sensor_types[sensor['type']],
-            "data": randint(10, 60),
+            "data": rng,
             "__v": 0
         })
+
+        if rng >= 10:
+            alert_msg = alert_msgs[rng%3]
+            alerts.append({
+                # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
+                "time": current_date,
+                "type": alert_msg['type'],
+                "sensorId": sensor['_id'],
+                "msg": alert_msg['msg'],
+                "fix": alert_msg['fix'],
+                "__v": 0
+            })
 
         current_date += timedelta(seconds=args.grain)
 
@@ -104,14 +139,20 @@ client = MongoClient(uri)
 db = client[args.name]
 
 # if collections exist, drop them all and re-create them with re-populated data
+# TODO don't drop collection (might drop watch), just delete entries
 if db.SensorReadings is not None:
     db.SensorReadings.drop()
+
+if db.Alerts is not None:
+    db.Alerts.drop()
 
 if db.Sensors is not None:
     db.Sensors.drop()
 
 db.create_collection('Sensors')
 db.create_collection('SensorReadings')
+db.create_collection('Alerts')
 
 db['Sensors'].insert_many(sensors)
 db['SensorReadings'].insert_many(sensor_readings)
+db['Alerts'].insert_many(alerts)
