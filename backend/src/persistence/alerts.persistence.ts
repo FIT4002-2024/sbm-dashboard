@@ -73,7 +73,7 @@ export const addSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (
         $addToSet: {alertDefinitions: alertConfiguration}
     }
     
-    SensorModel.updateOne(
+    await SensorModel.updateOne(
         filter,
         updateQuery
     ).exec()
@@ -97,8 +97,8 @@ export const deleteSensorAlertConfiguration: IRUDSensorAlertConfiguration = asyn
         $pull: {alertDefinitions: alertConfiguration}
     }
     
-    SensorModel.updateOne(
+    await SensorModel.updateOne(
         filter,
         updateQuery
-    )
+    ).exec()
 }
