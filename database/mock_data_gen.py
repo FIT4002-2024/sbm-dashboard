@@ -120,8 +120,8 @@ for sensor in sensors:
                 "time": current_date,
                 "type": alert_msg['type'],
                 "sensorId": sensor['_id'],
-                "msg": alert_msg['msg']
-                "fix": alert_msg['fix']
+                "msg": alert_msg['msg'],
+                "fix": alert_msg['fix'],
                 "__v": 0
             })
 
