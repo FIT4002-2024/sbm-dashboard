@@ -115,7 +115,7 @@ for sensor in sensors:
             "__v": 0
         })
 
-        if rng >= 80:
+        if rng >= 10:
             alert_msg = alert_msgs[rng%3]
             alerts.append({
                 # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),

@@ -1,4 +1,4 @@
-import { Document, FilterQuery, Model, mongo } from "mongoose";
+import { Document, FilterQuery, Model } from "mongoose";
 
 
 /**
@@ -32,5 +32,6 @@ export const readImmediateGeneral: IReadImmediateGeneral = async <T extends Docu
         }
     };
 
-    return await model.find(filter).exec()
+    const result = await model.find(filter).exec();
+    return result;
 }
