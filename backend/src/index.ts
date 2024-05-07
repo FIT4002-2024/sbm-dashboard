@@ -20,12 +20,10 @@ app.use(cors({
     credentials: true
 }));
 
-// app.use((req, res, next) => {
-//     if(req.method = 'GET') {
-//         app.locals.grain=60000
-//     }
-//     next()
-// })
+app.use((req, res, next) => {
+    console.log(req.body)
+    next()
+})
 
 app.use('/api/sensors/', sensorReadingsRouter);
 app.use('/api/alerts/', alertsRouter);

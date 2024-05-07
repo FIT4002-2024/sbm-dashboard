@@ -23,7 +23,7 @@ const AlertDefinitionSchema = new Schema<IAlertDefinition>({
     type: String,
     msg: String,
     fix: String
-});
+}, {_id: false});
 
 /**
  * Sensor represents a unique sensor within the business

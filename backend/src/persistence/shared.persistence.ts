@@ -1,4 +1,4 @@
-import { Document, FilterQuery, Model } from "mongoose";
+import { Document, FilterQuery, Model, mongo } from "mongoose";
 
 
 /**
@@ -9,11 +9,11 @@ import { Document, FilterQuery, Model } from "mongoose";
  *     @return: an aray of results for this minute
  */
 interface IReadImmediateGeneral {
-    <T extends Document>(model:Model<T>, sensorId?: String): Promise<T[]>
+    <T extends Document>(model:Model<T>, sensorId?: string): Promise<T[]>
 }
 
 export const readImmediateGeneral: IReadImmediateGeneral = async <T extends Document>(
-    model: Model<T>, sensorId?: String
+    model: Model<T>, sensorId?: string
 ) => {
 
     // calculate the current minute

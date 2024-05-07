@@ -5,7 +5,9 @@ from pymongo.server_api import ServerApi
 from datetime import datetime, timedelta
 from random import randint
 from uuid import uuid4
+from bson import ObjectId
 import argparse
+import random
 
 ###########################################
 ###    command line input validation    ###
@@ -45,7 +47,7 @@ sensor_locations = [
 sensor_types = {'temperature': 'C', 'humidity': 'g/m3'}
 
 sensors = [{
-    "_id": uuid4().hex,
+    "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
     "name": sensor_names[i],
     "type": list(sensor_types.keys())[i%2],
     "location": sensor_locations[randint(0, 5)],
@@ -104,7 +106,7 @@ for sensor in sensors:
     while current_date <= end_date:
         rng = randint(1, 100)
         sensor_readings.append({
-            "_id": uuid4().hex,
+            # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
             "time": current_date,
             "type": sensor['type'],
             "sensorId": sensor['_id'],
@@ -116,7 +118,7 @@ for sensor in sensors:
         if rng >= 80:
             alert_msg = alert_msgs[rng%3]
             alerts.append({
-                "_id": uuid4().hex,
+                # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
                 "time": current_date,
                 "type": alert_msg['type'],
                 "sensorId": sensor['_id'],

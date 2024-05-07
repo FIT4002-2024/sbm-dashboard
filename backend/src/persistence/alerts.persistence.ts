@@ -1,8 +1,9 @@
 import {SensorModel, IAlertDefinition} from "../models/sensor.model";
 import { IAlert, AlertModel } from "../models/alert.model";
 import { readImmediateGeneral } from "./shared.persistence";
-import { FilterQuery, UpdateQuery } from "mongoose";
+import { FilterQuery, UpdateQuery, mongo } from "mongoose";
 import { config } from "dotenv";
+const ObjectId = require('mongoose').Types.ObjectId
 
 /**
  * Retrieve all current alerts for this minute.
@@ -75,7 +76,7 @@ export const addSensorAlertConfiguration: IRUDSensorAlertConfiguration = async (
     SensorModel.updateOne(
         filter,
         updateQuery
-    )
+    ).exec()
 
     // query document then save???
 }
