@@ -2,13 +2,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Constructing the connection string using environment variables
-console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_USER, process.env.DB_PASSWORD, process.env.DB_NAME);
-
 const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
-
-// Connection options with new parser and unified topology
 const options = {
     maxPoolSize: 10,
     useNewUrlParser: true,
@@ -26,5 +21,3 @@ export const dbConnection = async () => {
         process.exit(1); // Exit the process with a failure code if the connection fails
     }
 };
-
-

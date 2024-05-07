@@ -1,9 +1,7 @@
 import {SensorModel, IAlertDefinition} from "../models/sensor.model";
 import { IAlert, AlertModel } from "../models/alert.model";
 import { readImmediateGeneral } from "./shared.persistence";
-import { FilterQuery, UpdateQuery, mongo } from "mongoose";
-import { config } from "dotenv";
-const ObjectId = require('mongoose').Types.ObjectId
+import { FilterQuery, UpdateQuery } from "mongoose";
 
 /**
  * Retrieve all current alerts for this minute.

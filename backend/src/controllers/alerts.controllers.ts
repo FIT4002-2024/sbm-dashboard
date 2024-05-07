@@ -7,6 +7,7 @@ import {
     changeSensorAlertConfiguration as changeConfiguration,
     deleteSensorAlertConfiguration as deleteConfiguration
 } from '../persistence/alerts.persistence'
+import {READ_FREQUENCY_S} from '../config/server.config';
 
 /**
  * Implements a server-sent event (SSE endpoint) where it constantly streams any alerts from 
@@ -32,7 +33,7 @@ export const watchAllAlerts = async (req: Request, res: Response) => {
     const stream: NodeJS.Timeout = setInterval(async () => {
         const readings = await readAllSensorAlerts();
         res.write(`data: ${JSON.stringify(readings)}\n\n`)
-    }, 60 * MS_IN_S)
+    }, READ_FREQUENCY_S * MS_IN_S)
 
     // close stream when connections ends and stop the interval
     res.on('close', () => {
@@ -65,7 +66,7 @@ export const watchSensorAlerts = async (req: Request, res: Response) => {
     const stream: NodeJS.Timeout = setInterval(async () => {
         const readings = await readSingleSensorsAlerts(req.params.sensorId);
         res.write(`data: ${JSON.stringify(readings)}\n\n`)
-    }, 60 * MS_IN_S)
+    }, READ_FREQUENCY_S * MS_IN_S)
 
     // close stream when connections ends and stop the interval
     res.on('close', () => {
