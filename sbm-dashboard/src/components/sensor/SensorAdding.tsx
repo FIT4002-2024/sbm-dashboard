@@ -8,12 +8,15 @@ import {
   formControlClasses,
   FormControl,
 } from "@mui/material";
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useState } from "react";
+import AlertAddingInSensor from "../alert/AlertAddingInSensor";
 
 const SensorAdding = () => {
   const sensorIDList = ["1", "2", "3"];
   const locationList = ["Location 1", "Location 2", "Location 3"];
   const sensorTypeList = ["Temperature", "Humanity"];
+
+  const [alerts, setAlerts] = useState([0]); // Initialize with one alert
 
   const [addingFormData, setAddingFormData] = React.useState({
     name: "",
@@ -21,6 +24,10 @@ const SensorAdding = () => {
     type: "",
     location: "",
   });
+
+  const addAlert = () => {
+    setAlerts((prevAlerts) => [...prevAlerts, prevAlerts.length]); // Add new alert
+  };
   const handleChange = (name: string, value: string) => {
     console.log(name, value);
 
@@ -43,7 +50,6 @@ const SensorAdding = () => {
           //   value={addingFormData.sensorId}
           //   onChange={(_, value) => handleChange("sensorId", value ?? "")}
         />
-
         <br></br>
         <FormControl fullWidth>
           <InputLabel id="select-sensor-type-label">Sensor Type</InputLabel>
@@ -57,13 +63,10 @@ const SensorAdding = () => {
             ))}
           </Select>
         </FormControl>
-
         <br></br>
         <br></br>
-
         <TextField fullWidth id="sensor-label" label="Sensor Label" />
         <br></br>
-
         <br></br>
         <Autocomplete
           freeSolo
@@ -77,6 +80,21 @@ const SensorAdding = () => {
           //   value={addingFormData.sensorId}
           //   onChange={(_, value) => handleChange("sensorId", value ?? "")}
         />
+        <br></br>
+        <div>
+          <b>Adding Alert</b>
+        </div>
+        <div style={{ margin: "1ch" }}>
+          {alerts.map((_, index) => (
+            <div>
+              <div>Alert: {index + 1}</div>
+              <AlertAddingInSensor key={index} />
+            </div>
+          ))}{" "}
+          <a type="button" onClick={addAlert}>
+            Add New Alert
+          </a>
+        </div>
         <br></br>
         <br></br>
         <br></br>

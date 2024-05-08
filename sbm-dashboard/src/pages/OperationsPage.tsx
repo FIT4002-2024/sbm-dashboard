@@ -4,8 +4,8 @@ import { CarouselRef } from "antd/lib/carousel"; // Importing CarouselRef type
 
 import SensorGrid from "../components/operations/SensorGrid";
 import Popup from "../components/global/Popup";
-import SensorAlert from "../components/sensor/SensorAlert";
 import SensorAdding from "../components/sensor/SensorAdding";
+import SensorAlert from "../components/alert/SensorAlert";
 /**
  * OperationsPage component
  * This component is responsible for rendering the Operations page and manages the connection to a Server-Sent Events (SSE) endpoint to stream sensor data.
