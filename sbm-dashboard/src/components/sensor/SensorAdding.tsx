@@ -66,6 +66,7 @@ const SensorAdding = () => {
 
         <br></br>
         <Autocomplete
+          freeSolo
           fullWidth
           disablePortal
           id="select-location"
