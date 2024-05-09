@@ -1,0 +1,17 @@
+FROM mongo:7.0
+
+COPY --chmod=755 add_test_users.sh /tmp
+
+# python setup
+RUN apt update && \
+    apt install -y python3 && \
+    apt install -y python3-pip && \
+    pip install pymongo
+
+# data population
+RUN mkdir -p /data/db
+COPY --chmod=755 mock_data_gen.py .
+COPY --chmod=755 entrypoint.sh .
+COPY --chmod=755 initiate_replication.js .
+
+ENTRYPOINT ["sh", "./entrypoint.sh"]

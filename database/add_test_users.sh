@@ -1,5 +1,5 @@
 cat <<- EOF > /tmp/add_test_users.js
-    database = connect("mongodb://localhost/mosquitto");
+    database = connect("mongodb://localhost:${MONGODB_PORT}/sbm_dashboard");
     database.users.insertOne(
         { 
             "username" : "test-user", 
@@ -12,4 +12,4 @@ cat <<- EOF > /tmp/add_test_users.js
         }
     )
 EOF
-mongosh -f /tmp/add_test_users.js
+mongosh -f /tmp/add_test_users.js --port "${MONGODB_PORT}"
