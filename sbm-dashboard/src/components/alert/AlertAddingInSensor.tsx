@@ -14,11 +14,13 @@ const AlertAddingInSensor: React.FC = () => {
   return (
     <div className="adding-alert-in-sensor" style={{ margin: "1ch" }}>
       <div style={{ display: "Flex" }}>
-        <TextField id="alert-label" label="Alert Label" fullWidth />
+        <TextField id="alert-label" label="Alert Message" fullWidth />
       </div>
       <br></br>
       <div style={{ display: "Flex" }}>
-        <FormControl sx={{ width: "10ch", paddingRight: "1ch" }}>
+        <TextField fullWidth id="alert-value" label="Alert Low Value" />
+
+        {/* <FormControl sx={{ width: "10ch", paddingRight: "1ch" }}>
           <InputLabel id="select-sensor-type-label">Check</InputLabel>
           <Select
             labelId="select-sensor-typ-label"
@@ -29,8 +31,8 @@ const AlertAddingInSensor: React.FC = () => {
               <MenuItem value={comparationType}>{comparationType}</MenuItem>
             ))}
           </Select>
-        </FormControl>
-        <TextField fullWidth id="alert-value" label="Alert Value" />
+        </FormControl> */}
+        <TextField fullWidth id="alert-value" label="Alert High Value" />
       </div>
       <br></br>
 
