@@ -60,7 +60,7 @@ function App() {
             }}>
             <Routes>
               <Route path='/' element={<OperationsPage/>} />
-              <Route path="/time-series/:sensorId" component={TimeSeriesView} />
+              <Route path="/time-series/:sensorId" element={<TimeSeriesView />} />
               <Route path='/dynamic-scheduling' element={<div>Content for Dynamic Scheduling</div>} />
               <Route path='/sales-forecast' element={<div>Content for Sales Forecast</div>} />
               <Route path='/accounts' element={<div>Content for Accounts</div>} />
