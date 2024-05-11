@@ -31,7 +31,7 @@ struct ProgramParameters {
     #[arg(short = 't', long, default_value_t = String::from("ibm"))]
     tenant_id: String,
     
-    #[arg(long = "mongo-uri", default_value_t = String::from("mongodb://localhost:27017/general"))]
+    #[arg(long = "mongo-uri", default_value_t = String::from("mongodb://localhost:27017,localhost:27018,localhost:27019/sbm_dashboard"))]
     mongo_connection_string: String,
 }
 
@@ -54,7 +54,7 @@ async fn main() -> Result<()> {
         .with_context(|| "Failed to init MongoDB client")?;
     let readings_collection = mongo_client.default_database()
         .with_context(|| "Did not specify default database")?
-        .collection::<SensorReading>("SensorReading");
+        .collection::<SensorReading>("SensorReadings");
 
     loop {
         let broad_event = elevate!(eventloop.poll().await, e, {
@@ -86,11 +86,14 @@ async fn main() -> Result<()> {
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct SensorReading {
-    time: chrono::DateTime<chrono::Utc>,
+pub struct SensorReading {
+    #[serde(rename = "_id", default = "mongodb::bson::oid::ObjectId::new")]
+    pub id: mongodb::bson::oid::ObjectId,
+    #[serde(with = "mongodb::bson::serde_helpers::bson_datetime_as_rfc3339_string")]
+    pub time: mongodb::bson::DateTime,
     #[serde(rename = "type")]
-    type_: String, 
-    sensor_id: String,
-    units: String,
-    data: String
+    pub type_: String, 
+    pub sensor_id: mongodb::bson::oid::ObjectId,
+    pub units: String,
+    pub data: f32 
 }
