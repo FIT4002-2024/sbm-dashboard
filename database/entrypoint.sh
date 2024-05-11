@@ -1,9 +1,9 @@
 set -eu 
 
-mongod --replSet sbm --bind_ip_all --port ${MONGODB_PORT} &
+mongod --replSet sbm --bind_ip_all --port ${MONGODB_PORT:-27017} &
 sleep 25
 
-if [ "${IS_REPLICA}" = "0" ]; then
+if [ "${IS_REPLICA:-0}" = "0" ]; then
     mongosh -f ./initiate_replication.js || true
     
     sh ./tmp/add_test_users.sh || true
