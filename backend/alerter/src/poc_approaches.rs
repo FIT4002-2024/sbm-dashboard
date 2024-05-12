@@ -166,16 +166,14 @@ pub async fn approach_2(mongodb_apis: &mut MongoDbApis) {
 // - Alerts are something computable given the sensor and sensor readings 
 // - Frontend could even do the computation, though doing it here allows possibility for SNS, email, etc.
 //
-#[allow(dead_code)]
+#[allow(dead_code, unreachable_code, unused_variables)]
 pub async fn approach_3(mongodb_apis: &mut MongoDbApis) -> anyhow::Result<()> {
     let mut readings_changes = mongodb_apis.readings_collection.watch(None, None).await
         .with_context(|| "Failed to initiate watching of the sensor readings collection")?;
     loop {
-        let readings_change = match readings_changes.next().await.transpose() { 
-            Err(e) => { log::error!("Encountered error when iterating over sensor readings changes... {e}"); continue },
-            Ok(None) => { log::debug!("Encountered the end of the sensor readings changes stream"); continue }, 
-            Ok(Some(x)) => x,
-        };
+        let readings_change = readings_changes.next().await.transpose()
+            .inspect_err(|e| log::error!("Encountered error when iterating over sensor readings changes... {e}")).unwrap_or(continue)
+            .ok_or(()).inspect_err(|_| log::warn!("Encountered the end of the sensor readings changes stream")).unwrap_or(continue);
         
         let sensor_reading = match (readings_change.operation_type, readings_change.full_document) {
             (mongodb::change_stream::event::OperationType::Insert, Some(x)) => x,    
@@ -190,7 +188,7 @@ pub async fn approach_3(mongodb_apis: &mut MongoDbApis) -> anyhow::Result<()> {
             continue; 
         }
         
-        let between_readings = match mongodb_apis.readings_collection.find(
+        let between_readings = mongodb_apis.readings_collection.find(
             doc! {
                 "$and": [
                     doc! { "sensorId": sensor_reading.sensor_id.clone() },
@@ -201,50 +199,39 @@ pub async fn approach_3(mongodb_apis: &mut MongoDbApis) -> anyhow::Result<()> {
                 ]
             }, 
             mongodb::options::FindOptions::builder().sort(doc! { "time": -1 }).build()
-        ).await {
-            Err(e) => { log::error!("Encountered error in querying sensor readings... {e}"); continue },
-            Ok(x) => x  
-        };
-        let mut between_readings: Vec<_> = match between_readings.try_collect().await {
-            Err(e) => { log::error!("Encountered error when collecting queried sensor readings... {e}"); continue },
-            Ok(x) => x
-        };
+        ).await
+            .inspect_err(|e| log::error!("Encountered error in querying sensor readings... {e}")).unwrap_or(continue);
+        let mut between_readings: Vec<_> = between_readings.try_collect().await
+            .inspect_err(|e| log::error!("Encountered error when collecting queried sensor readings... {e}")).unwrap_or(continue);
         between_readings.push(sensor_reading); 
         between_readings.sort_by(|x, y| y.time.cmp(&x.time));
         
-        let recent_reading = match between_readings.iter().next() {
-            None => { log::warn!("Not sensor readings (inclusively) between change event insert time and now"); continue },
-            Some(x) => x
-        };
+        let recent_reading = between_readings.iter().next()
+            .ok_or(()).inspect_err(|_| log::warn!("Not sensor readings (inclusively) between change event insert time and now")).unwrap_or(continue);
         
-        let source_sensor = match mongodb_apis.sensor_collection.find_one(doc! { "_id": recent_reading.sensor_id }, None).await {
-            Err(e) => { log::error!("Encountered error when searching for sensor corresponding to the reading... {e}"); continue },
-            Ok(None) => { log::warn!("Corresponding sensor could not be found for reading"); continue },
-            Ok(Some(x)) => x
-        };
+        let source_sensor = mongodb_apis.sensor_collection.find_one(doc! { "_id": recent_reading.sensor_id }, None).await 
+            .inspect_err(|e| log::error!("Encountered error when searching for sensor corresponding to the reading... {e}")).unwrap_or(continue)
+            .ok_or(()).inspect_err(|_| log::warn!("Corresponding sensor could not be found for reading")).unwrap_or(continue);
 
         for alert_definition in source_sensor.alert_definitions {
             if recent_reading.data < alert_definition.lo_limit 
             || recent_reading.data > alert_definition.hi_limit {
                 // TODO: Need model to allow mapping alert back to the alert definition
                 // Do not delete, dismiss
-                let mut recent_alert = match mongodb_apis.alerts_collection.find(
+                let mut recent_alert = mongodb_apis.alerts_collection.find(
                     doc! { "sensorId": source_sensor.id }, 
                     mongodb::options::FindOptions::builder().sort(doc! { "time": -1 }).limit(1).build()
-                ).await {
-                    Err(e) => { log::error!("Encountered error when attempting to find most recent alert... {e}"); continue },
-                    Ok(x) => x
-                };
+                ).await
+                    .inspect_err(|e| log::error!("Encountered error when attempting to find most recent alert... {e}")).unwrap_or(continue);
+
                 let alert_id = match recent_alert.next().await.transpose() {
                     Err(e) => { log::error!("Encountered error when polling alert stream... {e}"); continue },
                     Ok(None) => None,
                     Ok(Some(x)) => Some(x.id)
                 };
-                let new_alert = match Alert::from_alert_definition(&alert_id, &alert_definition, &source_sensor.id, &recent_reading.time)
-                    .as_doc_without_id() {
-                    Err(e) => { log::error!("Encountered error when converting alert struct into document w/o _id... {e}"); continue },
-                    Ok(x) => x
-                };
+                let new_alert = Alert::from_alert_definition(&alert_id, &alert_definition, &source_sensor.id, &recent_reading.time)
+                    .as_doc_without_id()
+                    .inspect_err(|e| log::error!("Encountered error when converting alert struct into document w/o _id... {e}")).unwrap_or(continue);
                 match mongodb_apis.alerts_collection.update_one(
                     doc! { "_id": alert_id.unwrap_or_else(|| mongodb::bson::oid::ObjectId::default()) }, 
                     doc! { "$set": new_alert },
