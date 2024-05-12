@@ -3,7 +3,7 @@ use futures_util::{StreamExt, TryStreamExt};
 use log;
 use anyhow::Context;
 use mongodb::bson::doc;
-use crate::database::{MongoDbApis, Alert};
+use database_client::{MongoDbApis, Alert};
 
 macro_rules! elevate {
     ($to_match: expr, $e: pat, $on_error: expr) => {
