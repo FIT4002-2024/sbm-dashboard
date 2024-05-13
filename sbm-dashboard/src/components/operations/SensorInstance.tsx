@@ -2,6 +2,8 @@ import React from "react";
 import { Card, Row, Col } from "antd";
 import { ExclamationCircleOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setSensorProps } from '../../store/store'
 
 interface SensorProps {
     factoryName: string;
@@ -22,9 +24,22 @@ const SensorInstance: React.FC<SensorProps> = ({
     highValue,
     lowValue
 }: SensorProps): JSX.Element => {
+    const dispatch = useDispatch(); // Move this line inside the component
+    const handleClick = () => {
+        dispatch(setSensorProps({
+            factoryName,
+            sensorId,
+            sensorType,
+            currentValue,
+            unit,
+            highValue,
+            lowValue
+        }));
+    };
+
     return (
-        <div>
-            <Link to={`/time-series/${sensorId}`}>
+        <div onClick={handleClick}>
+             <Link to={`/time-series/${sensorId}`}>
                 <Card style={{ width: '300px', height: '250px', boxShadow: '1px 1px 5px 1px #000000' }}>
                     {/* First Row */}
                     <Row style={{ height: '50px' }}>
