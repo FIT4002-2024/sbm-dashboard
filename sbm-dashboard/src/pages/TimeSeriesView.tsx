@@ -36,10 +36,13 @@ const TimeSeriesView: React.FC = () => {
         <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                 <h1>Operations</h1>
-                <div style={{ marginTop: '100px', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-                    <Tooltip title="More Info" onClick={() => setModalIsOpen(true)}>
-                        <InfoCircleOutlined />
-                    </Tooltip>
+                <div style={{position: 'absolute', top: '100px', left: '10px'}}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <h3 style={{ marginRight: '10px' }}>Sensor: {sensorId}</h3>
+                        <Tooltip title="More Info" onClick={() => setModalIsOpen(true)}>
+                            <InfoCircleOutlined />
+                        </Tooltip>
+                    </div>
                     <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
                         <DialogTitle>Sensor Details</DialogTitle>
                         <DialogContent>
