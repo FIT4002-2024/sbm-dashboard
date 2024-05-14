@@ -33,8 +33,10 @@ const AlertAddingInSensor: React.FC<AlertAddingInSensorProps> = (
 
   const handleChange = (name: string, value: string) => {
     setAlertData({ ...alertData, [name]: value });
-    console.log(alertData);
   };
+  useEffect(() => {
+    onInputChange(alertData);
+  }, [alertData, onInputChange]);
   return (
     <div className="adding-alert-in-sensor" style={{ margin: "1ch" }}>
       <div style={{ display: "Flex" }}>

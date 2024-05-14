@@ -23,46 +23,40 @@ const SensorAdding = () => {
   const locationList = ["Location 1", "Location 2", "Location 3"];
   const sensorTypeList = ["Temperature", "Humanity"];
 
-  const [alerts, setAlerts] = useState([0]);
-  const [alertData, setAlertData] = useState<sensorAlertProps[]>([]);
+  const [alerts, setAlerts] = useState<sensorAlertProps[]>([]);
   const [addingFormData, setAddingFormData] = React.useState({
     sensorId: "",
     type: "",
     name: "",
     location: "",
-    alerts: alertData,
+    alerts: alerts,
   });
 
-  const addAlert = (newAlert: sensorAlertProps) => {
-    setAlerts((prevAlerts) => [...prevAlerts, prevAlerts.length]);
-    var Alertdata: sensorAlertProps = {
-      id: alertData.length,
+  const addAlert = () => {
+    var Alert: sensorAlertProps = {
+      id: alerts.length,
       message: "",
       hiValue: 0,
       loValue: 0,
       suggestionAction: "",
     };
-    setAlertData((prevAlerts) => [...prevAlerts, Alertdata]);
+    setAlerts((prevAlerts) => [...prevAlerts, Alert]);
   };
 
   const removeAlert = (index: number) => {
-    setAlertData((prevAlerts) => prevAlerts.filter((_, i) => i !== index));
+    setAlerts((prevAlerts) => prevAlerts.filter((_, i) => i !== index));
   };
 
   const handleChange = (name: string, value: string) => {
-    console.log(name, value);
-
-    // const { name, value } = event.target;
     setAddingFormData({ ...addingFormData, [name]: value });
-    console.log(addingFormData);
   };
   const handleAlertChange = (newAlert: sensorAlertProps) => {
-    setAlertData((prevAlerts) => [
+    setAlerts((prevAlerts) => [
       ...prevAlerts.filter((alert) => alert.id !== newAlert.id),
       newAlert,
     ]);
+    console.log(addingFormData);
   };
-
   return (
     <div className="sensor-adding-popup">
       <form style={{ margin: "auto" }}>
@@ -74,8 +68,6 @@ const SensorAdding = () => {
           renderInput={(params) => (
             <TextField {...params} label="Sensor" value={params} />
           )}
-          //   value={addingFormData.sensorId}
-          //   onChange={(_, value) => handleChange("sensorId", value ?? "")}
         />
         <br></br>
         <FormControl fullWidth>
@@ -118,17 +110,21 @@ const SensorAdding = () => {
                 <div style={{ flexGrow: 1 }}>Alert: {index + 1}</div>
                 <a
                   type="button"
-                  onClick={() => removeAlert(index)} // Wrap removeAlert function call in an arrow function
                   style={{ marginRight: "1ch", color: "red" }}
+                  onClick={() => removeAlert(index)}
                 >
                   Remove Alert
                 </a>
               </div>
-              <AlertAddingInSensor key={index} handleChan />
+              <AlertAddingInSensor
+                key={index}
+                id={index}
+                onInputChange={handleAlertChange}
+              />
             </div>
           ))}
           <div style={{ display: "Flex" }}>
-            <a type="button" onClick={addAlert}>
+            <a type="button" onClick={() => addAlert()}>
               Add New Alert
             </a>
           </div>
