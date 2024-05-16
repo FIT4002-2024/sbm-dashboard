@@ -8,7 +8,7 @@ import {
   formControlClasses,
   FormControl,
 } from "@mui/material";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import AlertAddingInSensor from "../alert/AlertAddingInSensor";
 interface sensorAlertProps {
   id: number;
@@ -25,8 +25,8 @@ const SensorAdding = () => {
 
   const [alerts, setAlerts] = useState<sensorAlertProps[]>([]);
   const [addingFormData, setAddingFormData] = React.useState({
-    sensorId: "",
-    type: "",
+    sensorId: sensorIDList[0],
+    type: sensorTypeList[0],
     name: "",
     location: "",
     alerts: alerts,
@@ -55,6 +55,14 @@ const SensorAdding = () => {
       ...prevAlerts.filter((alert) => alert.id !== newAlert.id),
       newAlert,
     ]);
+  };
+  useEffect(() => {
+    setAddingFormData((prevData) => ({ ...prevData, alerts: alerts }));
+  }, [alerts, addingFormData]);
+
+  const onSubmit = () => {
+    event.preventDefault();
+
     console.log(addingFormData);
   };
   return (
@@ -68,6 +76,10 @@ const SensorAdding = () => {
           renderInput={(params) => (
             <TextField {...params} label="Sensor" value={params} />
           )}
+          value={addingFormData.sensorId}
+          onChange={(_, value) =>
+            handleChange("sensorId", value ?? sensorIDList[0])
+          }
         />
         <br></br>
         <FormControl fullWidth>
@@ -76,6 +88,10 @@ const SensorAdding = () => {
             labelId="select-sensor-typ-label"
             id="sensor-type-select"
             label="Sensor Type"
+            value={addingFormData.type || sensorTypeList[0]}
+            onChange={(event: SelectChangeEvent) =>
+              handleChange("alert", event.target.value as string)
+            }
           >
             {sensorTypeList.map((sensorType) => (
               <MenuItem value={sensorType}>{sensorType}</MenuItem>
@@ -84,7 +100,13 @@ const SensorAdding = () => {
         </FormControl>
         <br></br>
         <br></br>
-        <TextField fullWidth id="sensor-label" label="Sensor Label" />
+        <TextField
+          fullWidth
+          id="sensor-label"
+          label="Sensor Label"
+          value={addingFormData.name || ""}
+          onChange={(event) => handleChange("name", event.target.value)}
+        />
         <br></br>
         <br></br>
         <Autocomplete
@@ -96,8 +118,10 @@ const SensorAdding = () => {
           renderInput={(params) => (
             <TextField {...params} label="Location" value={params} />
           )}
-          //   value={addingFormData.sensorId}
-          //   onChange={(_, value) => handleChange("sensorId", value ?? "")}
+          value={addingFormData.location}
+          onChange={(_, value) =>
+            handleChange("location", value ?? locationList[0])
+          }
         />
         <br></br>
         <div>
@@ -132,7 +156,9 @@ const SensorAdding = () => {
         <br></br>
         <br></br>
         <br></br>
-        <button type="submit">Add Sensor</button>
+        <button type="submit" onClick={onSubmit}>
+          Add Sensor
+        </button>
       </form>
     </div>
   );
