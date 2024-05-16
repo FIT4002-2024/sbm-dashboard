@@ -1,4 +1,3 @@
-mod database;
 mod poc_approaches;
 
 use clap::Parser;
@@ -20,7 +19,7 @@ struct ProgramParameters {
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
     let program_arguments = ProgramParameters::parse();
-    let mut mongodb_apis = database::MongoDbApis::try_new(&program_arguments.mongo_connection_string).await?;
+    let mut mongodb_apis = database_client::MongoDbApis::try_new(&program_arguments.mongo_connection_string).await?;
     // let _ = poc_approaches::approach_1(&mut mongodb_apis).await;    
     // let _ = poc_approaches::approach_2(&mut mongodb_apis).await;    
     let _ = poc_approaches::approach_3(&mut mongodb_apis).await;    
