@@ -4,7 +4,7 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct ProgramParameters {
-    #[arg(long = "mongo-uri", default_value_t = String::from("mongodb://initial_primary:27017/sbm_dashboard?replicaSet=sbm"))]
+    #[arg(long = "mongo-uri", default_value_t = String::from("mongodb://initial_primary:27017,replica_1:27018,replica_2:27019/sbm_dashboard?replicaSet=sbm"))]
     mongo_connection_string: String,
 }
 

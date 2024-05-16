@@ -1,0 +1,9 @@
+FROM rust:1.78-buster  
+
+COPY --chmod=755 . .
+
+WORKDIR alerter 
+
+RUN cargo build
+
+CMD ["cargo", "run"]

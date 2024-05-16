@@ -28,11 +28,14 @@ while True:
     mqtt_client.publish(
         "ibm/temperature", 
         json.dumps({
-            "time": datetime.now(timezone.utc).isoformat(),
+            # "time": datetime.now(timezone.utc).isoformat(),
+            "time": {
+                "$date": datetime.now(timezone.utc).isoformat()
+            },
             "type": "info",
             "sensorId": sys.argv[1],
             "units": "°C",
-            "data": randint(-100, 100) 
+            "data": randint(1, 100) 
         })        
     )
 
