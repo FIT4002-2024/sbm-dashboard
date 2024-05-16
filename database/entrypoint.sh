@@ -1,14 +1,21 @@
 set -eu 
 
-mongod --replSet sbm --bind_ip_all --port ${MONGODB_PORT:-27017} &
-sleep 25
+main() {
+    local replica_flag=""
+    if [ "${IS_CLUSTER_SETUP:-0}" = "1" ]; then 
+        replica_flag="--replSet sbm" 
+    fi
+    mongod ${replica_flag} --bind_ip_all --port ${MONGODB_PORT:-27017} &
+    sleep 30
 
-if [ "${IS_REPLICA:-0}" = "0" ]; then
-    mongosh -f ./initiate_replication.js || true
-    
+    if [ "${IS_CLUSTER_SETUP:-0}" = "1" ]; then 
+        mongosh -f ./initiate_replication.js || true
+    fi
+
     sh ./tmp/add_test_users.sh || true
-
     python3 ./mock_data_gen.py -g 30 -s day -e day
-fi
 
-tail -f /dev/null
+    tail -f /dev/null
+}
+
+main
