@@ -28,7 +28,25 @@ interface IReadSingleSensorsAlerts {
 }
 
 export const readSingleSensorsAlerts: IReadSingleSensorsAlerts = async (sensorId: string) => {
-    return await readImmediateGeneral(AlertModel, sensorId)
+    
+    // calculate the current minute
+    const now: Date = new Date();
+    const MS_PER_S: number = 1000;
+    const MS_IN_MIN: number = MS_PER_S * 60
+    const excessTime: number = now.getMilliseconds() + now.getSeconds() * MS_PER_S;
+    const currMinute: number = now.valueOf() - excessTime.valueOf();
+
+    // filter out all records not within the current minute
+    // if sensorId not provided, get all records
+    const filter: FilterQuery<any> = {
+        sensorId: sensorId,
+        time: {
+            $gte: new Date(currMinute), $lt: new Date(currMinute + MS_IN_MIN)
+        }
+    };
+
+    const result = await AlertModel.find(filter).exec();
+    return result;
 }
 
 /**
