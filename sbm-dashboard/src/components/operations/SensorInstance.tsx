@@ -1,6 +1,9 @@
 import React from "react";
 import { Card, Row, Col } from "antd";
 import { ExclamationCircleOutlined, TrophyOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setSensorProps } from '../../store/store'
 
 interface SensorProps {
     factoryName: string;
@@ -21,43 +24,58 @@ const SensorInstance: React.FC<SensorProps> = ({
     highValue,
     lowValue
 }: SensorProps): JSX.Element => {
+    const dispatch = useDispatch(); // Move this line inside the component
+    const handleClick = () => {
+        dispatch(setSensorProps({
+            factoryName,
+            sensorId,
+            sensorType,
+            currentValue,
+            unit,
+            highValue,
+            lowValue
+        }));
+    };
+
     return (
-        <div>
-            <Card style={{ width: '300px', height: '250px', boxShadow: '1px 1px 5px 1px #000000' }}>
-                {/* First Row */}
-                <Row style={{ height: '50px' }}>
-                    <Col flex={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
-                        <TrophyOutlined style={{ fontSize: '24px' }} />
-                    </Col>
-                    <Col flex={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
-                        <div>
-                            <h2 style={{ padding: 0, margin: 0 }}>{factoryName}</h2>
-                            <p style={{ padding: 0, margin: 0 }}>{sensorId + "-" + sensorType}</p>
-                        </div>
-                    </Col>
-                    <Col flex={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
-                        <ExclamationCircleOutlined style={{ fontSize: '16px', color: 'red' }} />
-                    </Col>
-                </Row>
-                {/* Second Row */}
-                <Row style={{ height: '100px' }}>
-                    <Col flex={10} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
-                        <h1 style={{ fontSize: '64px' }}>{currentValue}</h1>
-                    </Col>
-                    <Col flex={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
-                        <p>{unit}</p>
-                    </Col>
-                    <Col flex={1}>
-                        {/* Nested Rows */}
-                        <Row style={{ height: '25px', marginBottom: '-10px', display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
-                            <p>High: {highValue}</p>
-                        </Row>
-                        <Row style={{ height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
-                            <p>Low: {lowValue}</p>
-                        </Row>
-                    </Col>
-                </Row>
-            </Card>
+        <div onClick={handleClick}>
+             <Link to={`/time-series/${sensorId}`}>
+                <Card style={{ width: '300px', height: '250px', boxShadow: '1px 1px 5px 1px #000000' }}>
+                    {/* First Row */}
+                    <Row style={{ height: '50px' }}>
+                        <Col flex={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+                            <TrophyOutlined style={{ fontSize: '24px' }} />
+                        </Col>
+                        <Col flex={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
+                            <div>
+                                <h2 style={{ padding: 0, margin: 0 }}>{factoryName}</h2>
+                                <p style={{ padding: 0, margin: 0 }}>{sensorId + "-" + sensorType}</p>
+                            </div>
+                        </Col>
+                        <Col flex={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+                            <ExclamationCircleOutlined style={{ fontSize: '16px', color: 'red' }} />
+                        </Col>
+                    </Row>
+                    {/* Second Row */}
+                    <Row style={{ height: '100px' }}>
+                        <Col flex={10} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+                            <h1 style={{ fontSize: '64px' }}>{currentValue}</h1>
+                        </Col>
+                        <Col flex={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
+                            <p>{unit}</p>
+                        </Col>
+                        <Col flex={1}>
+                            {/* Nested Rows */}
+                            <Row style={{ height: '25px', marginBottom: '-10px', display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
+                                <p>High: {highValue}</p>
+                            </Row>
+                            <Row style={{ height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'left', backgroundColor: 'white' }}>
+                                <p>Low: {lowValue}</p>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Card>
+            </Link>
         </div>
     );
 }

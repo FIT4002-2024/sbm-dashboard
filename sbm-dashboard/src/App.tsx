@@ -8,6 +8,7 @@ import { Layout, Button, theme } from 'antd'
 import './App.css'
 
 import OperationsPage from './pages/OperationsPage'
+import TimeSeriesView from './pages/TimeSeriesView'
 import SideNavigation from './components/global/SideNavigation'
 
 const { Header, Sider, Content } = Layout
@@ -59,6 +60,7 @@ function App() {
             }}>
             <Routes>
               <Route path='/' element={<OperationsPage/>} />
+              <Route path="/time-series/:sensorId" element={<TimeSeriesView />} />
               <Route path='/dynamic-scheduling' element={<div>Content for Dynamic Scheduling</div>} />
               <Route path='/sales-forecast' element={<div>Content for Sales Forecast</div>} />
               <Route path='/accounts' element={<div>Content for Accounts</div>} />
