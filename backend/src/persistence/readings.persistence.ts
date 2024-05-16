@@ -1,5 +1,6 @@
 import { ISensorReading, SensorReadingModel } from "../models/readings.model";
 import { readImmediateGeneral } from "./shared.persistence";
+import {newDateInLocale} from "../util/date.util"
 
 /**
  * Connection to database that returns all sensor readings for the current minute
@@ -30,7 +31,7 @@ interface IReadTimeSeriesReadings {
 export const readTimeSeriesReadings: IReadTimeSeriesReadings = async (sensorId: string, scope: string) => {
 
     // calculate the times for the scope:
-    const now: Date = new Date();
+    const now: Date = newDateInLocale();
     const MS_PER_S: number = 1000;
     const MS_IN_MIN: number = MS_PER_S * 60
 
@@ -47,14 +48,15 @@ export const readTimeSeriesReadings: IReadTimeSeriesReadings = async (sensorId: 
 
     // find start and end times for time series
     const excessTimeFromCurrMinute: number = now.getMilliseconds() + now.getSeconds() * MS_PER_S;
-    const currMinute: number = now.valueOf() - excessTimeFromCurrMinute.valueOf();
-    const startTime: number = now.valueOf() - scopeDurationMS;
+    const currMinute: Date = newDateInLocale(now.valueOf() - excessTimeFromCurrMinute.valueOf() + MS_IN_MIN);
+    const startTime: Date = newDateInLocale(now.valueOf() - scopeDurationMS);
 
     // filter out all records not within the specified scope
     const filter: Object = {
         sensorId: sensorId,
         time: {
-            $gte: new Date(startTime), $lt: new Date(currMinute + MS_IN_MIN)
+            $gte: startTime,
+            $lt: currMinute
         }
     };
 

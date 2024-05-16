@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, ObjectId } from 'mongoose';
 
 /**
  * SensorReading represents a single record of a sensors reading for a given minute
@@ -14,7 +14,7 @@ import { Schema, model, Document } from 'mongoose';
 export interface ISensorReading extends Document {
     time: Date;
     type: string;
-    sensorId: string;
+    sensorId: Schema.Types.ObjectId;
     units: string;
     data: number;
 }
@@ -22,7 +22,7 @@ export interface ISensorReading extends Document {
 const SensorReadingSchema = new Schema<ISensorReading>({
     time: Date,
     type: String,
-    sensorId: String,
+    sensorId: Schema.Types.ObjectId,
     units: String,
     data: Number
 })

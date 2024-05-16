@@ -14,7 +14,7 @@ import { Schema, model, Document } from 'mongoose';
 export interface IAlert extends Document {
     time: Date;
     type: string;
-    sensorId: string;
+    sensorId: Schema.Types.ObjectId;
     msg: string
     fix: string
 }
@@ -22,7 +22,7 @@ export interface IAlert extends Document {
 const AlertSchema = new Schema<IAlert>({
     time: Date,
     type: String,
-    sensorId: String,
+    sensorId: Schema.Types.ObjectId,
     msg: String,
     fix: String,
 })
