@@ -5,8 +5,8 @@ dotenv.config();
 // Constructing the connection string using environment variables
 console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_USER, process.env.DB_PASSWORD, process.env.DB_NAME);
 
-const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-
+// const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+const uri = "mongodb://initial_primary:27017,replica_1:27018,replica_2:27019/sbm_dashboard?replicaSet=sbm";
 
 // Connection options with new parser and unified topology
 const options = {

@@ -3,10 +3,50 @@ services:
         container_name: mqtt_broker
         image: mqtt_broker:0.1.0
         build:
-            context: .
-            dockerfile: ./backend/mqtt_broker/Dockerfile.broker
+            context: ./backend/
+            dockerfile: ./mqtt_broker/Dockerfile.broker
         ports:
             - 1885:1885
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 100M
+        depends_on:
+            database_primary:
+                condition: service_healthy
+    mqtt_pusher: 
+        container_name: mqtt_pusher 
+        image: mqtt_pusher:0.1.0
+        build:
+            context: ./backend/
+            dockerfile: ./Dockerfile.pusher
+        environment:
+            RUST_LOG: TRACE 
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 100M
+        depends_on:
+            - mqtt_broker 
+            - database_primary 
+    api_server:
+        container_name: api_server
+        image: api_server:0.1.0
+        build:
+            context: ./backend/
+            dockerfile: ./Dockerfile.api
+        ports:
+            - 4000:4000
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 4000M
+        depends_on:
+            database_primary:
+                condition: service_healthy
     database_primary:
         container_name: initial_primary
         image: sbm_database:0.2.0
@@ -18,6 +58,13 @@ services:
             MONGODB_PORT: 27017
         ports:
             - 27017:27017
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/sbm_database --quiet
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 1000M
     database_replica_1:
         container_name: replica_1
         image: sbm_database:0.2.0
@@ -29,6 +76,11 @@ services:
             MONGODB_PORT: 27018
         ports:
             - 27018:27018
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 1000M
     database_replica_2:
         container_name: replica_2 
         image: sbm_database:0.2.0
@@ -40,3 +92,24 @@ services:
             MONGODB_PORT: 27019
         ports:
             - 27019:27019
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 1000M
+    alert_generator: 
+        container_name: alert_generator 
+        image: alert_generator:0.1.0
+        build:
+            context: ./backend/
+            dockerfile: ./Dockerfile.alerter
+        environment:
+            RUST_LOG: TRACE 
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 100M
+        depends_on:
+            database_primary:
+                condition: service_healthy

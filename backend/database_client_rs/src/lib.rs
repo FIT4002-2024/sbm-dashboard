@@ -84,7 +84,7 @@ impl Alert {
 pub struct SensorReading {
     #[serde(rename = "_id", default = "mongodb::bson::oid::ObjectId::new")]
     pub id: mongodb::bson::oid::ObjectId,
-    #[serde(with = "mongodb::bson::serde_helpers::bson_datetime_as_rfc3339_string")]
+    // #[serde(with = "mongodb::bson::serde_helpers::bson_datetime_as_rfc3339_string")]
     pub time: mongodb::bson::DateTime,
     #[serde(rename = "type")]
     pub type_: String, 

@@ -51,7 +51,13 @@ sensors = [{
     "name": sensor_names[i],
     "type": list(sensor_types.keys())[i%2],
     "location": sensor_locations[randint(0, 5)],
-    "alertDefinitions": [],
+    "alertDefinitions": [{
+        "loLimit": randint(1, 50),
+        "hiLimit": randint(51, 100),
+        "type": "info",
+        "msg": "teemo",
+        "fix": "mush"
+    }],
     "__v": 0
 } for i in range(9)]
 
