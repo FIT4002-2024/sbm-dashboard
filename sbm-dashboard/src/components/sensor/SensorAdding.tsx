@@ -5,7 +5,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  formControlClasses,
+  // formControlClasses,
   FormControl,
 } from "@mui/material";
 import React, { ChangeEvent, useEffect, useState } from "react";
@@ -116,12 +116,13 @@ const SensorAdding = () => {
           id="select-location"
           options={locationList}
           renderInput={(params) => (
-            <TextField {...params} label="Location" value={params} />
+            <TextField
+              {...params}
+              label="Location"
+              value={params}
+              onChange={(event) => handleChange("name", event.target.value)}
+            />
           )}
-          value={addingFormData.location}
-          onChange={(_, value) =>
-            handleChange("location", value ?? locationList[0])
-          }
         />
         <br></br>
         <div>
