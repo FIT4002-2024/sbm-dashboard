@@ -13,7 +13,7 @@ services:
                     cpus: '0.5'
                     memory: 100M
         depends_on:
-            a_sbm_database_1:
+            sbm_database_1:
                 condition: service_healthy
     mqtt_pusher: 
         container_name: mqtt_pusher 
@@ -29,8 +29,8 @@ services:
                     cpus: '0.5'
                     memory: 100M
         depends_on:
-            - mqtt_broker 
-            - a_sbm_database_1 
+            - mqtt_broker
+            - sbm_database_1
     api_server:
         container_name: api_server
         image: api_server:0.1.0
@@ -47,9 +47,9 @@ services:
                     cpus: '2'
                     memory: 4000M
         depends_on:
-            a_sbm_database_1:
+            sbm_database_1:
                 condition: service_healthy
-    a_sbm_database_1:
+    sbm_database_1:
         container_name: sbm_database_1
         image: sbm_database:0.2.0
         build: 
@@ -113,5 +113,5 @@ services:
                     cpus: '0.50'
                     memory: 100M
         depends_on:
-            a_sbm_database_1:
+            sbm_database_1:
                 condition: service_healthy
