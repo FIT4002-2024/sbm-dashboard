@@ -226,11 +226,8 @@ pub async fn approach_3(mongodb_apis: &mut MongoDbApis) -> anyhow::Result<()> {
                     Ok(None) => None,
                     Ok(Some(x)) => Some(x.id)
                 };
-                let new_alert = match Alert::from_alert_definition(&alert_id, &alert_definition, &source_sensor.id, &recent_reading.time)
-                .as_doc_without_id() {
-                    Err(e) => { log::error!("Encountered error when converting alert struct into document w/o _id... {e}"); continue },
-                    Ok(x) => x
-                };
+                let new_alert = qbang::q!(Alert::from_alert_definition(&alert_id, &alert_definition, &source_sensor.id, &recent_reading.time) .as_doc_without_id()
+                    .inspect_err(|e| log::error!("Encountered error when converting alert struct into document w/o _id... {e}"))); 
                 let _ = qbang::q!(mongodb_apis.alerts_collection.update_one(
                     doc! { "_id": alert_id.unwrap_or_else(|| mongodb::bson::oid::ObjectId::default()) }, 
                     doc! { "$set": new_alert },
