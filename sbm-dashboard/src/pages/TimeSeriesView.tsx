@@ -189,23 +189,23 @@ const TimeSeriesView: React.FC = () => {
                                 <Button onClick={() => setSensorModalIsOpen(false)}>Close</Button>
                             </DialogActions>
                         </Dialog>
-                        <Button 
-                            variant="contained" 
-                            color="primary" 
-                            startIcon={<PlusOutlined />} 
-                            style={{ marginLeft: '500px' }}
-                        >
-                            Add
-                        </Button>
-                        <div style={{ marginLeft: '10px' }}>
-                        <Button 
-                            variant="contained" 
-                            startIcon={<FilterOutlined />} 
-                            sx={{ bgcolor: 'grey.500', color: 'white' }}
-                            onClick={() => setModalIsOpen(true)} // Open the modal when the button is clicked
-                        >
-                            Scope
-                        </Button>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: '400px' }}>
+                            <Button 
+                                variant="contained" 
+                                sx={{ bgcolor: 'blue.500', color: 'white', '&:hover': { bgcolor: 'grey.500' } }}
+                                startIcon={<PlusOutlined />} 
+                                style={{ marginRight: '15px' }}
+                            >
+                                Add Sensor
+                            </Button>
+                            <Button 
+                                variant="contained" 
+                                startIcon={<FilterOutlined />} 
+                                sx={{ bgcolor: 'blue.500', color: 'white', '&:hover': { bgcolor: 'grey.500' } }}
+                                onClick={() => setModalIsOpen(true)} // Open the modal when the button is clicked
+                            >
+                                Scope
+                            </Button>
                         </div>
                     </div>
                     <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
