@@ -20,70 +20,90 @@ const TimeSeriesView: React.FC = () => {
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const chartWidth = window.innerWidth * 0.8; // 80% of window width
     const chartHeight = window.innerHeight * 0.6;
-    const chartRef = useRef(null);
-
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         const scope = 'day';
-    //         try{
-    //             const response = await fetch(`/api/sensors/stream-timeseries/${sensorId}/${scope}`);
-    //             const text = await response.text();
-    //             console.log('Response text:', text);
-
-    //             if (!response.ok) {
-    //                 console.error('Fetch request failed:', response);
-    //                 return;
-    //             }
-        
-    //             const data = JSON.parse(text);
-    //             console.log('DATA: ', data);
-        
-    //             if (Array.isArray(data)) {
-    //                 setChartData({
-    //                     labels: data.map(reading => reading.timestamp),
-    //                     datasets: [{
-    //                         label: 'Sensor Readings',
-    //                         data: data.map(reading => reading.value),
-    //                         fill: false,
-    //                         backgroundColor: 'rgb(75, 192, 192)',
-    //                         borderColor: 'rgba(75, 192, 192, 0.2)',
-    //                     }],
-    //                 });
-    //             }
-    //         } catch (error) {
-    //             console.error('Fetch request failed:', error);
-    //         }
-    //     };
-
-    //     fetchData();
-    // }, [sensorId]);
+    const chartRef = useRef<HTMLCanvasElement>(null);
+    const [chart, setChart] = useState<Chart | null>(null);
 
     useEffect(() => {
-        if (chartRef && chartRef.current) {
-            const chartInstance = new Chart(chartRef.current, {
+        const canvas = chartRef.current;
+        let newChart = null;
+    
+        if (canvas) {
+            newChart = new Chart(canvas, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: [], // This will be updated with the time values from the fetched data
                     datasets: [{
-                        label: '',
-                        data: [],
+                        label: 'Temperature',
+                        data: [], // This will be updated with the temperature values from the fetched data
                         fill: false,
-                        backgroundColor: 'rgb(75, 192, 192)',
-                        borderColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
                     }]
                 },
                 options: {
+                    responsive: true,
                     scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'minute'
                             }
-                        }]
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }
             });
+            setChart(newChart);
         }
-    }, []);
+    
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`http://localhost:4000/api/sensors/stream-timeseries/${sensorId}/hour`);
+                const reader = response.body.getReader();
+                let chunks = '';
+    
+                while (true) {
+                    const { done, value } = await reader.read();
+    
+                    if (done) {
+                        break;
+                    }
+    
+                    chunks += new TextDecoder("utf-8").decode(value);
+    
+                    if (chunks.endsWith('\n')) {
+                        const message = chunks.slice(0, -1);
+                        chunks = '';
+    
+                        if (message.startsWith('data: ')) {
+                            const data = JSON.parse(message.slice(6)); // Remove 'data: '
+                            console.log('Received data:', data);
+                            // Update the chart data
+                            if (newChart) {
+                                newChart.data.labels.push(data.time);
+                                newChart.data.datasets.forEach((dataset) => {
+                                    dataset.data.push(data.value); // assuming 'value' field in data
+                                });
+                                newChart.update();
+                            }else
+                            {
+                                console.log('No chart found');
+                            
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch request failed:', error);
+            }
+        };
+    
+        if (newChart) {
+            fetchData();
+        }
+    }, [sensorId]);
 
     if (!sensorProps) {
         return <div>Loading...</div>;
