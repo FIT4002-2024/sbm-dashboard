@@ -39,21 +39,21 @@ const TimeSeriesView: React.FC = () => {
     useEffect(() => {
         const canvas = chartRef.current;
         let newChart = null;
-    
+        
         if (canvas) {
             newChart = new Chart(canvas, {
                 type: 'line',
                 data: {
                     labels: [], // This will be updated with the time values from the fetched data
                     datasets: [{
-                        label: 'temperature C',
+                        label: `${sensorId} (temperature C)`,
                         data: [], // This will be updated with the temperature values from the fetched data
                         fill: false,
                         borderColor: 'rgb(75, 192, 192)',
                         tension: 0.1
                     },
                     {
-                        label: 'humidity g/m3',
+                        label: `${sensorId} (humidity g/m3)`,
                         data: [], // This will be updated with the humidity values from the fetched data
                         fill: false,
                         borderColor: 'rgb(255, 0, 0)', // Red color for humidity
@@ -121,17 +121,17 @@ const TimeSeriesView: React.FC = () => {
                                 data.forEach(item => {
                                     newChart.data.labels.push(new Date(item.time)); // convert time string to Date object
                                     newChart.data.datasets.forEach((dataset) => {
-                                        console.log("DATASE LABEL: ", dataset.label);
-                                        console.log("ITEM TYPE: ", item.type);
-                                        console.log("ITEM UNITS: ", item.units);
-                                        const itemType = `${item.type} ${item.units}`;
-                                        console.log("ITEM TYPE: ", itemType);
-                                        console.log("DATASET LABEL: ", dataset.label);
-                                        if (dataset.label === itemType) { // match the dataset label with the data type
-                                            console.log("MATCHED");
-                                            const dataPoint = `${item.data} ${item.units}`; // create the data point string
+                                        console.log('Dataset label:', dataset.label);
+                                        const [sensorId, typeUnits] = dataset.label.split(' ('); // Split the dataset label into sensorId and typeUnits
+                                        const type = typeUnits.slice(0, -1); // Remove the closing parenthesis from typeUnits
+                                        console.log('Type:', type);
+                                        console.log('Item type:', `${item.type} ${item.units}`)
+
+                                        const itemType = `${item.type} ${item.units}`; // Create the item type string
+                                        if (type === itemType) { // Match the dataset type with the item type
+                                            const dataPoint = `${item.data} ${item.units}`; // Create the data point string
                                             if (!dataset.data.includes(item.data)) {
-                                                dataset.data.push(item.data); // add the data point to the dataset
+                                                dataset.data.push(item.data); // Add the data point to the dataset
                                             }
                                         }
                                 });
