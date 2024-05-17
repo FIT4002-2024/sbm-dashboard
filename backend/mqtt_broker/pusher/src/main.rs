@@ -48,10 +48,8 @@ async fn main() -> Result<()> {
         .collection::<database_client::SensorReading>("SensorReadings");
 
     loop {
-        let broad_event = match eventloop.poll().await {
-            Err(e) => { log::error!("Polling eventloop failed... {e}"); continue }, 
-            Ok(x) => x 
-        };
+        let broad_event = qbang::q!(eventloop.poll().await
+            .inspect_err(|e| log::error!("Polling eventloop failed... {e}")));
 
         let subscribed_message = match broad_event {
             Event::Incoming(Incoming::Publish(subscribed_message)) => subscribed_message,
@@ -61,14 +59,10 @@ async fn main() -> Result<()> {
             }
         };
         
-        let sensor_reading: database_client::SensorReading = match serde_json::from_slice(subscribed_message.payload.as_ref()) {
-            Err(e) => { log::warn!("Could not serialize sensor reading... {e}"); continue }, 
-            Ok(x) => x 
-        }; 
-        let _ = match readings_collection.insert_one(sensor_reading, None).await {
-            Err(e) => { log::warn!("Could not insert sensor reading into database... {e}"); continue }, 
-            Ok(x) => x 
-        };
+        let sensor_reading: database_client::SensorReading = qbang::q!(serde_json::from_slice(subscribed_message.payload.as_ref())
+            .inspect_err(|e| log::warn!("Could not serialize sensor reading... {e}")));
+        let _ = qbang::q!(readings_collection.insert_one(sensor_reading, None).await
+            .inspect_err(|e| log::warn!("Could not insert sensor reading into database... {e}")));
 
         log::trace!("Successfully reached end of loop");
     };

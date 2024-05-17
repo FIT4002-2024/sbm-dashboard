@@ -1,4 +1,4 @@
-set -eu 
+set -xeu 
 
 project_root="$(pwd)"
 
