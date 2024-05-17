@@ -39,7 +39,7 @@ const TimeSeriesView: React.FC = () => {
     useEffect(() => {
         const canvas = chartRef.current;
         let newChart = null;
-        
+    
         if (canvas) {
             newChart = new Chart(canvas, {
                 type: 'line',
@@ -88,6 +88,22 @@ const TimeSeriesView: React.FC = () => {
                         y: {
                             beginAtZero: true
                         }
+                    },
+                    tooltips: {
+                        onlyShowForDatasetIndex: [0, 1] // Show tooltips only for dataset index 0 and 1
+                    },
+                    plugins: {
+                        beforeDraw: function(chartInstance, easing) {
+                            if (chartInstance.config.options.tooltips.onlyShowForDatasetIndex) {
+                                var tooltipsToDisplay = chartInstance.config.options.tooltips.onlyShowForDatasetIndex;
+                                var active = chartInstance.tooltip._active || [];
+                                if (active.length > 0) {
+                                    if (tooltipsToDisplay.indexOf(active[0]._datasetIndex) === -1) {
+                                        chartInstance.tooltip._model.opacity = 0;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -134,7 +150,7 @@ const TimeSeriesView: React.FC = () => {
                                                 dataset.data.push(item.data); // Add the data point to the dataset
                                             }
                                         }
-                                });
+                                    });
                                 });
                                 newChart.update();
                             } else {
