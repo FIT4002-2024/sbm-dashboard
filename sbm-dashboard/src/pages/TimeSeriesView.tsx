@@ -21,6 +21,7 @@ const TimeSeriesView: React.FC = () => {
     const { sensorId } = useParams<{ sensorId: string }>();
     const sensorProps = useSelector((state: RootState) => state.sensors.sensorProps);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+    const [sensorModalIsOpen, setSensorModalIsOpen] = useState<boolean>(false);
     const [scope, setScope] = useState<string>('hour'); // Default scope is 'hour'
     const chartWidth = window.innerWidth * 0.8; // 80% of window width
     const chartHeight = window.innerHeight * 0.6;
@@ -170,9 +171,24 @@ const TimeSeriesView: React.FC = () => {
                 <div style={{position: 'absolute', top: '100px', left: '10px'}}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px'}}>
                         <h3 style={{ marginRight: '10px' }}>Sensor ID: {sensorId}</h3>
-                        <Tooltip title="More Info" onClick={() => setModalIsOpen(true)}>
+                        <Tooltip title="More Info" onClick={() => setSensorModalIsOpen(true)}>
                             <InfoCircleOutlined />
                         </Tooltip>
+                        <Dialog open={sensorModalIsOpen} onClose={() => setSensorModalIsOpen(false)}>
+                            <DialogTitle>Sensor Information</DialogTitle>
+                            <DialogContent>
+                                <h2>{sensorProps.factoryName}</h2>
+                                <p>Sensor ID: {sensorProps.sensorId}</p>
+                                <p>Sensor Type: {sensorProps.sensorType}</p>
+                                <p>Current Value: {sensorProps.currentValue}</p>
+                                <p>Unit: {sensorProps.unit}</p>
+                                <p>High Value: {sensorProps.highValue}</p>
+                                <p>Low Value: {sensorProps.lowValue}</p>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setSensorModalIsOpen(false)}>Close</Button>
+                            </DialogActions>
+                        </Dialog>
                         <Button 
                             variant="contained" 
                             color="primary" 
