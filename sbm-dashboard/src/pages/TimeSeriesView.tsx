@@ -4,6 +4,10 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
 import Button from '@mui/material/Button';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
@@ -13,15 +17,23 @@ import {
     Chart,
 } from 'chart.js'
 
-
 const TimeSeriesView: React.FC = () => {
     const { sensorId } = useParams<{ sensorId: string }>();
     const sensorProps = useSelector((state: RootState) => state.sensors.sensorProps);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+    const [scope, setScope] = useState<string>('hour'); // Default scope is 'hour'
     const chartWidth = window.innerWidth * 0.8; // 80% of window width
     const chartHeight = window.innerHeight * 0.6;
     const chartRef = useRef<HTMLCanvasElement>(null);
     const [chart, setChart] = useState<Chart | null>(null);
+
+    const handleScopeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setScope(event.target.value as string);
+        if (chart) {
+            chart.destroy(); // Destroy the old chart
+            setChart(null);
+        }
+    };
 
     useEffect(() => {
         const canvas = chartRef.current;
@@ -76,7 +88,7 @@ const TimeSeriesView: React.FC = () => {
     
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:4000/api/sensors/stream-timeseries/${sensorId}/hour`);
+                const response = await fetch(`http://localhost:4000/api/sensors/stream-timeseries/${sensorId}/${scope}`);
                 const reader = response.body.getReader();
                 let chunks = '';
     
@@ -108,7 +120,7 @@ const TimeSeriesView: React.FC = () => {
                                                 dataset.data.push(item.data); // add the data value to the dataset
                                             }
                                         }
-                                    });
+                                });
                                 });
                                 newChart.update();
                             } else {
@@ -125,13 +137,11 @@ const TimeSeriesView: React.FC = () => {
         if (newChart) {
             fetchData();
         }
-    }, [sensorId]);
+    }, [sensorId, scope]);
 
     if (!sensorProps) {
         return <div>Loading...</div>;
     }
-
-    const { factoryName, sensorType, currentValue, unit, highValue, lowValue } = sensorProps;
 
     // Fetch the sensor data based on sensorId and display it in a time series view
     // This is just a placeholder and needs to be replaced with actual implementation
@@ -163,21 +173,20 @@ const TimeSeriesView: React.FC = () => {
                             variant="contained" 
                             startIcon={<FilterOutlined />} 
                             sx={{ bgcolor: 'grey.500', color: 'white' }}
+                            onClick={() => setModalIsOpen(true)} // Open the modal when the button is clicked
                         >
                             Scope
                         </Button>
                         </div>
                     </div>
                     <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
-                        <DialogTitle>Sensor Details</DialogTitle>
+                        <DialogTitle>Select Scope</DialogTitle>
                         <DialogContent>
-                            <h2>{factoryName}</h2>
-                            <p>Sensor ID: {sensorId}</p>
-                            <p>Sensor Type: {sensorType}</p>
-                            <p>Current Value: {currentValue}</p>
-                            <p>Unit: {unit}</p>
-                            <p>High Value: {highValue}</p>
-                            <p>Low Value: {lowValue}</p>
+                            <Select value={scope} onChange={handleScopeChange}>
+                                <MenuItem value="hour">Hour</MenuItem>
+                                <MenuItem value="day">Day</MenuItem>
+                                <MenuItem value="week">Week</MenuItem>
+                            </Select>
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setModalIsOpen(false)}>Close</Button>
