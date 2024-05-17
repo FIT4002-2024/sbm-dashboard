@@ -33,7 +33,7 @@ const TimeSeriesView: React.FC = () => {
                 data: {
                     labels: [], // This will be updated with the time values from the fetched data
                     datasets: [{
-                        label: 'Temperature',
+                        label: 'temperature',
                         data: [], // This will be updated with the temperature values from the fetched data
                         fill: false,
                         borderColor: 'rgb(75, 192, 192)',
@@ -82,15 +82,19 @@ const TimeSeriesView: React.FC = () => {
                             console.log('Received data:', data);
                             // Update the chart data
                             if (newChart) {
-                                newChart.data.labels.push(data.time);
-                                newChart.data.datasets.forEach((dataset) => {
-                                    dataset.data.push(data.value); // assuming 'value' field in data
+                                data.forEach(item => {
+                                    newChart.data.labels.push(new Date(item.time)); // convert time string to Date object
+                                    newChart.data.datasets.forEach((dataset) => {
+                                        console.log("DATASE LABEL: ", dataset.label);
+                                        console.log("ITEM TYPE: ", item.type);
+                                        if (dataset.label === item.type) { // match the dataset label with the data type
+                                            dataset.data.push(item.data); // add the data value to the dataset
+                                        }
+                                    });
                                 });
                                 newChart.update();
-                            }else
-                            {
+                            } else {
                                 console.log('No chart found');
-                            
                             }
                         }
                     }
