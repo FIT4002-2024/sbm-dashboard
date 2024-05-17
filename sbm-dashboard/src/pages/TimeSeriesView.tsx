@@ -43,12 +43,28 @@ const TimeSeriesView: React.FC = () => {
                 options: {
                     responsive: true,
                     scales: {
-                        x: {
+                        xAxes: [{
                             type: 'time',
                             time: {
-                                unit: 'minute'
+                                unit: 'minute',
+                                displayFormats: {
+                                    'millisecond': 'HH:mm:ss EEE dd MMM',
+                                    'second': 'HH:mm:ss EEE dd MMM',
+                                    'minute': 'HH:mm:ss EEE dd MMM',
+                                    'hour': 'HH:mm:ss EEE dd MMM',
+                                    'day': 'HH:mm:ss EEE dd MMM',
+                                    'week': 'HH:mm:ss EEE dd MMM',
+                                    'month': 'HH:mm:ss EEE dd MMM',
+                                    'quarter': 'HH:mm:ss EEE dd MMM',
+                                    'year': 'HH:mm:ss EEE dd MMM',
+                                }
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return new Date(values[index].value).toLocaleString('en-US', { hour12: false, weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                }
                             }
-                        },
+                        }],
                         y: {
                             beginAtZero: true
                         }
