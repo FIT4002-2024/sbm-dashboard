@@ -10,7 +10,8 @@ import './App.css'
 import OperationsPage from './pages/OperationsPage'
 import TimeSeriesView from './pages/TimeSeriesView'
 import SideNavigation from './components/global/SideNavigation'
-
+import AlertBar from './components/global/AlertBar'
+ 
 const { Header, Sider, Content } = Layout
 
 function App() {
@@ -69,7 +70,7 @@ function App() {
         </Layout>
         <Sider id='side-alerts-bar' trigger={null} collapsible collapsed={collapsed} width={250}>
           <div>
-            {collapsed ? <h2>Alerts</h2> : <h1>Alerts</h1>}
+            <AlertBar collapsed={collapsed}/>
           </div>
         </Sider>
       </Layout>
