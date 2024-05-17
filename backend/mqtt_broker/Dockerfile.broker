@@ -26,7 +26,7 @@ auth_opt_backends mongo
 
 auth_opt_files_register user, acl
 
-auth_opt_mongo_host initial_primary
+auth_opt_mongo_host sbm_database_1
 auth_opt_mongo_dbname sbm_dashboard
 EOF
 

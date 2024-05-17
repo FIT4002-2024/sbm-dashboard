@@ -26,6 +26,7 @@ parser.add_argument('-n', '--name', default='sbm_dashboard', type=str, help="The
 parser.add_argument('-g', '--grain', default=60, type=int, choices=[10, 30, 60], help="The granularity of readings entries e.g. do we have readings per minute or per 10sec?")
 parser.add_argument('-s', '--start_scope', default='week', choices=['hour', 'day', 'week'], type=str, help="Should the script create data for the past hour, day or week?")
 parser.add_argument('-e', '--end_scope', default='week', choices=['hour', 'day', 'week', 'month'], type=str, help="Should the script create data for the next hour, day, week or months?")
+parser.add_argument('-o', '--only_sensors', type=bool, default=False, help="Whether to only generate sensors")
 
 args = parser.parse_args()
 
@@ -106,34 +107,35 @@ end_date = datetime.now() + timedelta(hours=end_time)
 
 
 # generate mock readings for every minute within the scope per sensor
-for sensor in sensors:
-    current_date = start_date
+if not args.only_sensors:
+    for sensor in sensors:
+        current_date = start_date
 
-    while current_date <= end_date:
-        rng = randint(1, 100)
-        sensor_readings.append({
-            # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
-            "time": current_date,
-            "type": sensor['type'],
-            "sensorId": sensor['_id'],
-            "units": sensor_types[sensor['type']],
-            "data": rng,
-            "__v": 0
-        })
-
-        if rng >= 10:
-            alert_msg = alert_msgs[rng%3]
-            alerts.append({
+        while current_date <= end_date:
+            rng = randint(1, 100)
+            sensor_readings.append({
                 # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
                 "time": current_date,
-                "type": alert_msg['type'],
+                "type": sensor['type'],
                 "sensorId": sensor['_id'],
-                "msg": alert_msg['msg'],
-                "fix": alert_msg['fix'],
+                "units": sensor_types[sensor['type']],
+                "data": rng,
                 "__v": 0
             })
 
-        current_date += timedelta(seconds=args.grain)
+            if rng >= 10:
+                alert_msg = alert_msgs[rng%3]
+                alerts.append({
+                    # "_id": ObjectId(''.join([random.choice('0123456789abcdef') for i in range(24)])),
+                    "time": current_date,
+                    "type": alert_msg['type'],
+                    "sensorId": sensor['_id'],
+                    "msg": alert_msg['msg'],
+                    "fix": alert_msg['fix'],
+                    "__v": 0
+                })
+
+            current_date += timedelta(seconds=args.grain)
 
 ###########################################
 ###         database population         ###
@@ -160,5 +162,6 @@ db.create_collection('SensorReadings')
 db.create_collection('Alerts')
 
 db['Sensors'].insert_many(sensors)
-db['SensorReadings'].insert_many(sensor_readings)
-db['Alerts'].insert_many(alerts)
+if not args.only_sensors:
+    db['SensorReadings'].insert_many(sensor_readings)
+    db['Alerts'].insert_many(alerts)

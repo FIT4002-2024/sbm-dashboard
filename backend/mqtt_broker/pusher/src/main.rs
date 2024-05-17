@@ -22,7 +22,7 @@ struct ProgramParameters {
     #[arg(short = 't', long, default_value_t = String::from("ibm"))]
     tenant_id: String,
     
-    #[arg(long = "mongo-uri", default_value_t = String::from("mongodb://initial_primary:27017,replica_1:27018,replica_2:27019/sbm_dashboard?replicaSet=sbm"))]
+    #[arg(long = "mongo-uri", default_value_t = String::from("mongodb://sbm_database_1:27017,sbm_database_2:27018,sbm_database_3:27019/sbm_dashboard?replicaSet=sbm"))]
     mongo_connection_string: String,
 }
 
