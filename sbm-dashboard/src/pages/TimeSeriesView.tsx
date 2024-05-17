@@ -104,7 +104,9 @@ const TimeSeriesView: React.FC = () => {
                                         console.log("DATASE LABEL: ", dataset.label);
                                         console.log("ITEM TYPE: ", item.type);
                                         if (dataset.label === item.type) { // match the dataset label with the data type
-                                            dataset.data.push(item.data); // add the data value to the dataset
+                                            if (!dataset.data.includes(item.data)) {
+                                                dataset.data.push(item.data); // add the data value to the dataset
+                                            }
                                         }
                                     });
                                 });
