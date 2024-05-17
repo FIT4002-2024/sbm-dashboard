@@ -26,7 +26,7 @@ parser.add_argument('-n', '--name', default='sbm_dashboard', type=str, help="The
 parser.add_argument('-g', '--grain', default=60, type=int, choices=[10, 30, 60], help="The granularity of readings entries e.g. do we have readings per minute or per 10sec?")
 parser.add_argument('-s', '--start_scope', default='week', choices=['hour', 'day', 'week'], type=str, help="Should the script create data for the past hour, day or week?")
 parser.add_argument('-e', '--end_scope', default='week', choices=['hour', 'day', 'week', 'month'], type=str, help="Should the script create data for the next hour, day, week or months?")
-parser.add_argument('-o', '--only_sensors', type=bool, default=False, help="Whether to only generate sensors")
+parser.add_argument('-o', '--only_sensors', action='store_true', help="Whether to only generate sensors")
 
 args = parser.parse_args()
 

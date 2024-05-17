@@ -16,7 +16,7 @@ main() {
     if [ "${is_cluster_setup}" = "1" ]; then 
         if [ "${IS_REPLICA}" = "0" ]; then
             mongosh -f ./initiate_replication.js || true
-            python3 ./mock_data_gen.py -g 30 -s day -e day
+            python3 ./mock_data_gen.py -g 30 -s day -e day -o
         fi
     else
         python3 ./mock_data_gen.py -g 30 -s day -e day
