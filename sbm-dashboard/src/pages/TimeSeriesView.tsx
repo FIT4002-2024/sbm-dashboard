@@ -62,6 +62,14 @@ const TimeSeriesView: React.FC = () => {
                 },
                 options: {
                     responsive: true,
+                    legend: {
+                        labels: {
+                            filter: function(item, chart) {
+                                // Exclude items whose dataset's data array is empty
+                                return chart.datasets[item.datasetIndex].data.length > 0;
+                            }
+                        }
+                    },
                     scales: {
                         xAxes: [{
                             type: 'time',
