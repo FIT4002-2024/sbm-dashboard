@@ -45,10 +45,17 @@ const TimeSeriesView: React.FC = () => {
                 data: {
                     labels: [], // This will be updated with the time values from the fetched data
                     datasets: [{
-                        label: 'temperature',
+                        label: 'temperature C',
                         data: [], // This will be updated with the temperature values from the fetched data
                         fill: false,
                         borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'humidity g/m3',
+                        data: [], // This will be updated with the humidity values from the fetched data
+                        fill: false,
+                        borderColor: 'rgb(255, 0, 0)', // Red color for humidity
                         tension: 0.1
                     }]
                 },
@@ -115,9 +122,15 @@ const TimeSeriesView: React.FC = () => {
                                     newChart.data.datasets.forEach((dataset) => {
                                         console.log("DATASE LABEL: ", dataset.label);
                                         console.log("ITEM TYPE: ", item.type);
-                                        if (dataset.label === item.type) { // match the dataset label with the data type
+                                        console.log("ITEM UNITS: ", item.units);
+                                        const itemType = `${item.type} ${item.units}`;
+                                        console.log("ITEM TYPE: ", itemType);
+                                        console.log("DATASET LABEL: ", dataset.label);
+                                        if (dataset.label === itemType) { // match the dataset label with the data type
+                                            console.log("MATCHED");
+                                            const dataPoint = `${item.data} ${item.units}`; // create the data point string
                                             if (!dataset.data.includes(item.data)) {
-                                                dataset.data.push(item.data); // add the data value to the dataset
+                                                dataset.data.push(item.data); // add the data point to the dataset
                                             }
                                         }
                                 });
@@ -156,7 +169,7 @@ const TimeSeriesView: React.FC = () => {
                 </div>
                 <div style={{position: 'absolute', top: '100px', left: '10px'}}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px'}}>
-                        <h3 style={{ marginRight: '10px' }}>Sensor: {sensorId}</h3>
+                        <h3 style={{ marginRight: '10px' }}>Sensor ID: {sensorId}</h3>
                         <Tooltip title="More Info" onClick={() => setModalIsOpen(true)}>
                             <InfoCircleOutlined />
                         </Tooltip>
