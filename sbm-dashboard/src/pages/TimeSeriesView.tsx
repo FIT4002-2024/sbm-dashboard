@@ -27,6 +27,7 @@ const TimeSeriesView: React.FC = () => {
     const chartRef = useRef<HTMLCanvasElement>(null);
     const [chart, setChart] = useState<Chart | null>(null);
     const [addSensorModalIsOpen, setAddSensorModalIsOpen] = useState<boolean>(false);
+    const [selectedSensorId, setSelectedSensorId] = useState<string>('');
 
 
     const handleScopeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -37,12 +38,60 @@ const TimeSeriesView: React.FC = () => {
         }
     };
 
-    const handleAddSensorClick = () => {
-        setAddSensorModalIsOpen(true);
+    const handleAddSensor = async (id: string) => {
+        setSelectedSensorId(id);
+        // Fetch the data for the new sensor and add it to the chart
+        try {
+            const response = await fetch(`http://localhost:4000/api/sensors/stream-timeseries/${id}/${scope}`);
+            const reader = response.body.getReader();
+            let chunks = '';
+            console.log("NEW RESPONSE: ", response);
+            while (true) {
+                const { done, value } = await reader.read();
+    
+                if (done) {
+                    break;
+                }
+    
+                chunks += new TextDecoder("utf-8").decode(value);
+    
+                if (chunks.endsWith('\n')) {
+                    const message = chunks.slice(0, -1);
+                    chunks = '';
+    
+                    const newData = JSON.parse(message.slice(6)); // Remove 'data: '
+                    console.log('Received data:', newData);
+    
+                    if (chart) {
+                        newData.forEach(item => {
+                            chart.data.labels.push(new Date(item.time)); // convert time string to Date object
+                            chart.data.datasets.forEach((dataset) => {
+                                console.log('Dataset label:', dataset.label);
+                                const [id, typeUnits] = dataset.label.split(' ('); // Split the dataset label into sensorId and typeUnits
+                                const type = typeUnits.slice(0, -1); // Remove the closing parenthesis from typeUnits
+                                console.log('Type:', type);
+                                console.log('Item type:', `${item.type} ${item.units}`)
+
+                                const itemType = `${item.type} ${item.units}`; // Create the item type string
+                                if (type === itemType) { // Match the dataset type with the item type
+                                    const dataPoint = `${item.data} ${item.units}`; // Create the data point string
+                                    if (!dataset.data.includes(item.data)) {
+                                        dataset.data.push(item.data); // Add the data point to the dataset
+                                    }
+                                }
+                            });
+                        });
+                        chart.update();
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
-    const handleAddSensorModalClose = () => {
-        setAddSensorModalIsOpen(false);
+    const handleAddSensorClick = () => {
+        setAddSensorModalIsOpen(true);
     };
 
     useEffect(() => {
@@ -232,7 +281,7 @@ const TimeSeriesView: React.FC = () => {
                             >
                                 Add Sensor
                             </Button>
-                            <AddSensorModal isOpen={addSensorModalIsOpen} onClose={handleAddSensorModalClose} />
+                            <AddSensorModal isOpen={addSensorModalIsOpen} onClose={() => setAddSensorModalIsOpen(false)} onAdd={handleAddSensor} />
                             <Button 
                                 variant="contained" 
                                 startIcon={<FilterOutlined />} 
