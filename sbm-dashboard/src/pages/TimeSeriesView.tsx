@@ -6,8 +6,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Radio from '@mui/material/Radio';
 import Button from '@mui/material/Button';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
@@ -16,6 +14,7 @@ import { PlusOutlined, InfoCircleOutlined, FilterOutlined } from '@ant-design/ic
 import { 
     Chart,
 } from 'chart.js'
+import AddSensorModal from '../components/operations/AddSensorModal';
 
 const TimeSeriesView: React.FC = () => {
     const { sensorId } = useParams<{ sensorId: string }>();
@@ -27,6 +26,8 @@ const TimeSeriesView: React.FC = () => {
     const chartHeight = window.innerHeight * 0.6;
     const chartRef = useRef<HTMLCanvasElement>(null);
     const [chart, setChart] = useState<Chart | null>(null);
+    const [addSensorModalIsOpen, setAddSensorModalIsOpen] = useState<boolean>(false);
+
 
     const handleScopeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setScope(event.target.value as string);
@@ -34,6 +35,14 @@ const TimeSeriesView: React.FC = () => {
             chart.destroy(); // Destroy the old chart
             setChart(null);
         }
+    };
+
+    const handleAddSensorClick = () => {
+        setAddSensorModalIsOpen(true);
+    };
+
+    const handleAddSensorModalClose = () => {
+        setAddSensorModalIsOpen(false);
     };
 
     useEffect(() => {
@@ -219,9 +228,11 @@ const TimeSeriesView: React.FC = () => {
                                 sx={{ bgcolor: 'blue.500', color: 'white', '&:hover': { bgcolor: 'grey.500' } }}
                                 startIcon={<PlusOutlined />} 
                                 style={{ marginRight: '15px' }}
+                                onClick={handleAddSensorClick}
                             >
                                 Add Sensor
                             </Button>
+                            <AddSensorModal isOpen={addSensorModalIsOpen} onClose={handleAddSensorModalClose} />
                             <Button 
                                 variant="contained" 
                                 startIcon={<FilterOutlined />} 
