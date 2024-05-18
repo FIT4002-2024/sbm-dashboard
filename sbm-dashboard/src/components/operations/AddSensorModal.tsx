@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, Select, MenuItem, DialogActions, Button } from '@mui/material';
 
 interface AddSensorModalProps {
@@ -7,18 +7,25 @@ interface AddSensorModalProps {
 }
 
 const AddSensorModal: React.FC<AddSensorModalProps> = ({ isOpen, onClose }) => {
+    const [sensorIds, setSensorIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        fetch('http://localhost:4000/api/sensors/')
+            .then(response => response.json())
+            .then(data => setSensorIds(data))
+            .catch(error => console.error('Error:', error));
+    }, []);
+
     return (
         <Dialog open={isOpen} onClose={onClose}>
             <DialogTitle>Add a Sensor</DialogTitle>
             <DialogContent>
                 <Select>
-                    <MenuItem value="sensor1">Sensor 1</MenuItem>
-                    <MenuItem value="sensor2">Sensor 2</MenuItem>
+                    {sensorIds.map((id) => (
+                        <MenuItem key={id} value={id}>{id}</MenuItem>
+                    ))}
                 </Select>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Close</Button>
-            </DialogActions>
         </Dialog>
     );
 };
