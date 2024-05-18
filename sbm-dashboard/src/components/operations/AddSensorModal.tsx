@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, Select, MenuItem, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, Select, MenuItem, DialogActions, Button, Box } from '@mui/material';
 
 interface AddSensorModalProps {
     isOpen: boolean;
@@ -18,13 +18,25 @@ const AddSensorModal: React.FC<AddSensorModalProps> = ({ isOpen, onClose }) => {
 
     return (
         <Dialog open={isOpen} onClose={onClose}>
-            <DialogTitle>Add a Sensor</DialogTitle>
+            <Box>
+                <DialogActions>
+                    <Button onClick={onClose}>Close</Button>
+                </DialogActions>
+            </Box>
+            <Box display="flex" justifyContent="center" marginTop={2}>
+                <DialogTitle>Sensors Available:</DialogTitle>
+            </Box>
             <DialogContent>
-                <Select>
+                <Select fullWidth>
                     {sensorIds.map((id) => (
                         <MenuItem key={id} value={id}>{id}</MenuItem>
                     ))}
                 </Select>
+                <Box display="flex" justifyContent="center" marginTop={2}>
+                    <Button variant="contained" color="success">
+                        Add
+                    </Button>
+                </Box>
             </DialogContent>
         </Dialog>
     );
