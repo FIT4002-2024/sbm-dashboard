@@ -1,0 +1,18 @@
+FROM rust:1.77-buster as build
+
+WORKDIR /pusher
+
+COPY --chmod=755 ./mqtt_broker/pusher/ ./
+COPY --chmod=755 ./database_client_rs/ ../database_client_rs/
+
+RUN cargo build
+
+RUN stat ./target/debug/pusher
+
+FROM rust:1.77-buster as run 
+
+WORKDIR /pusher
+
+COPY --from=build /pusher/target/debug/pusher ./
+
+CMD ["./pusher"]

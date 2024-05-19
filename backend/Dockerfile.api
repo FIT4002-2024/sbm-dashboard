@@ -1,0 +1,4 @@
+FROM node:20-alpine
+COPY --chmod=755 . .
+RUN npm install
+CMD ["npm", "run", "dev"]

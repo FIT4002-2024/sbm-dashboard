@@ -16,6 +16,7 @@ env_logger = "0.11.3"
 envy = "0.4.2"
 log = "0.4.21"
 mongodb = { version = "2.8.2", features = ["bson-chrono-0_4"] }
+qbang = "0.1.0"
 rumqttc = "=0.24.0"
 serde = { version = "1.0.198", features = ["derive"] }
 serde_bytes = "0.11.14"
