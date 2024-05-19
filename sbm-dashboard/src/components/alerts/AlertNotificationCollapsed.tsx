@@ -1,6 +1,5 @@
 import React from "react";
 import { WarningFilled, ExclamationCircleFilled, QuestionCircleFilled } from '@ant-design/icons';
-import { Card } from "antd";
 import './AlertNotification.css';
 
 
@@ -11,14 +10,14 @@ interface AlertNotificationProps {
     msg: string;
 }
 
-const AlertNotification: React.FC<AlertNotificationProps> = ({ collapsed, sensorId, msg, type }) => {
-    const getIcon = (type: string) => {
-        switch (type.toLowerCase()) {
-            case 'warning':
+const AlertNotificationCollapsed: React.FC<AlertNotificationProps> = ({ sensorId, type, msg }) => {
+    const getIcon = (msg: string) => {
+        switch (msg.toLowerCase()) {
+            case 'critical':
                 return <WarningFilled style={{ color: '#ff0000' }} />;
-            case 'out of range':
+            case 'warning':
                 return <ExclamationCircleFilled style={{ color: '#ffa800' }} />;
-            case 'offline':
+            case 'info':
                 return <QuestionCircleFilled style={{ color: '#00a3ff' }} />;
             default:
                 return null;
@@ -27,11 +26,9 @@ const AlertNotification: React.FC<AlertNotificationProps> = ({ collapsed, sensor
 
     return (
         <div className="alert-notification">
-            <span>{getIcon(msg)}</span>
-            <div className="alert-message">Sensor: {sensorId}</div>
-            <div className="alert-message"> {msg} </div>
+                <span>{getIcon(msg)}</span>
         </div>
     );
 };
 
-export default AlertNotification;
+export default AlertNotificationCollapsed;
