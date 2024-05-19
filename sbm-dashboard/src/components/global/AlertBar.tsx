@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import AlertNotification from '../alerts/AlertNotification';
+import { useNavigate } from "react-router-dom";
+import { WarningFilled, ExclamationCircleFilled, QuestionCircleFilled } from '@ant-design/icons';
 import AlertNotificationCollapsed from "../alerts/AlertNotificationCollapsed";
 import { Button } from "antd";
 
@@ -27,6 +28,7 @@ const AlertBar: React.FC<AlertBarProps> = ({ collapsed }) => {
     // Sample alert notifications
     const [alertData, setAlertData] = useState<AlertData[]>([]);
     const eventSourceRef = useRef<EventSource | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const sseUrl = 'http://localhost:4000/api/alerts/';
@@ -64,6 +66,24 @@ const AlertBar: React.FC<AlertBarProps> = ({ collapsed }) => {
         return Array.from(dataMap.values());
     };
 
+    const getIcon = (type: string) => {
+        switch (type.toLowerCase()) {
+            case 'critical':
+                return <WarningFilled style={{ color: '#ff0000' }} />;
+            case 'warning':
+                return <ExclamationCircleFilled style={{ color: '#ffa800' }} />;
+            case 'info':
+                return <QuestionCircleFilled style={{ color: '#00a3ff' }} />;
+            default:
+                return null;
+        }
+    };
+
+    const handleButtonClick = (sensorId: string) => {
+        navigate(`/time-series/${sensorId}`);
+    };
+
+
     return (
         <div className="alert-bar">
             {collapsed ? <h2>Alerts</h2> : <h1>Alerts</h1>}
@@ -79,14 +99,16 @@ const AlertBar: React.FC<AlertBarProps> = ({ collapsed }) => {
                     />
                 )) :
                 alertData.map(alert => (
-                    <Button type="link" key={alert.alertId} style={{ maxWidth: 200, height: 0 }} onClick={() => alert.fix}>
-                        <AlertNotification
-                            key={alert.sensorId}
-                            collapsed={collapsed}
-                            sensorId={alert.sensorId}
-                            type={alert.type}
-                            msg={alert.msg}
-                        />
+                    <Button 
+                        type="text" 
+                        key={alert.alertId} 
+                        style={{ maxWidth: 200, height: 150, color: 'whitesmoke', display: 'flex', alignItems: 'center', textAlign: 'left', whiteSpace: 'normal', wordBreak: 'break-word' }} 
+                        onClick={() => handleButtonClick(alert.sensorId)}
+                    >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                            {getIcon(alert.type)}
+                            <span style={{ flex: 1 }}>Sensor: {alert.sensorId} - {alert.msg}</span>
+                        </span>
                     </Button>
                 ))
             }

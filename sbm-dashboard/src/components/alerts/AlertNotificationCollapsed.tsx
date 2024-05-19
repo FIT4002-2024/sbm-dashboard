@@ -11,8 +11,8 @@ interface AlertNotificationProps {
 }
 
 const AlertNotificationCollapsed: React.FC<AlertNotificationProps> = ({ sensorId, type, msg }) => {
-    const getIcon = (msg: string) => {
-        switch (msg.toLowerCase()) {
+    const getIcon = (type: string) => {
+        switch (type.toLowerCase()) {
             case 'critical':
                 return <WarningFilled style={{ color: '#ff0000' }} />;
             case 'warning':
@@ -26,7 +26,7 @@ const AlertNotificationCollapsed: React.FC<AlertNotificationProps> = ({ sensorId
 
     return (
         <div className="alert-notification">
-                <span>{getIcon(msg)}</span>
+            <span>{getIcon(type)}</span>
         </div>
     );
 };
