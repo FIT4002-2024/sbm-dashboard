@@ -1,0 +1,16 @@
+/* AlertNotification.css */
+.alert-notification {
+    padding: 10px;
+    align-items: center;
+    color: whitesmoke;
+    font-size: 24px;
+    overflow-wrap: break-word;
+}
+
+.alert-notification span {
+    margin-right: 10px;
+}
+
+.alert-message {
+    font-size: 12px;
+}

@@ -5,6 +5,7 @@ import cors from "cors";
 import {dbConnection} from "./config/db.config";
 import sensorReadingsRouter from "./routes/readings.routes";
 import alertsRouter from "./routes/alerts.routes";
+import sensorRoutes from "./routes/sensors.routes";
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 
 app.use('/api/sensors/', sensorReadingsRouter);
 app.use('/api/alerts/', alertsRouter);
+app.use('/api/sensors/', sensorRoutes);
 
 
 dbConnection()

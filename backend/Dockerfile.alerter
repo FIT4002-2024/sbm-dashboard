@@ -1,9 +1,18 @@
-FROM rust:1.78-buster  
+FROM rust:1.77-buster as build
 
-COPY --chmod=755 . .
+WORKDIR /alerter 
 
-WORKDIR alerter 
+COPY --chmod=755 ./alerter/ ./
+COPY --chmod=755 ./database_client_rs/ ../database_client_rs/
 
 RUN cargo build
 
-CMD ["cargo", "run"]
+RUN stat ./target/debug/alerter 
+
+FROM rust:1.77-buster as run 
+
+WORKDIR /alerter
+
+COPY --from=build /alerter/target/debug/alerter ./
+
+CMD ["./alerter"]
